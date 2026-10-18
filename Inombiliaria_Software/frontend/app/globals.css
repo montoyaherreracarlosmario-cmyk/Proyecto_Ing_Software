@@ -5,7 +5,7 @@
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    --bg: #c1c5c3;
+
     --card: #ffffff;
     --tx: #14201d;
     --mut: #5b6b66;

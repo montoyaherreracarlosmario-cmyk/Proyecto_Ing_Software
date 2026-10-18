@@ -1,12 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getInmuebles } from '../../../../frontend/lib/api';
-import Lista from '../../../../frontend/components/Lista';
-import Detalle from '../../../../frontend/components/Detalle';
-import ContratoForm from '../../../../frontend/components/ContratoForm';
-import InmuebleForm from '../../../../frontend/components/InmuebleForm';
-import { FILTROS0 } from '../../../../frontend/lib/utils';
-import { Logo } from '../../../../frontend/components/Iconos';
+import { getInmuebles } from '../lib/api';
+import Lista from '../components/Lista';
+import Detalle from '../components/Detalle';
+import ContratoForm from '../components/ContratoForm';
+import InmuebleForm from '../components/InmuebleForm';
+import { FILTROS0 } from '../lib/utils';
+import { Logo } from '../components/Iconos';
 
 export default function Home() {
   const [data, setData] = useState(null);

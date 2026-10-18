@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 import Hoja from './Hoja';
-import { crearContrato } from '../../../../frontend/lib/api';
+
+import { crearContrato } from '../lib/api';
 
 export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) {
   const [modo, setModo] = useState(modo0);
