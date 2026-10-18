@@ -1,4 +1,5 @@
-import { fmt } from '../lib/utils';
+
+import { fmt } from '../../../../frontend/lib/utils';
 
 const V = ({ x, d }) => (x && String(x).trim() ? <b>{x}</b> : <b className="bl">{d || '__________'}</b>);
 
