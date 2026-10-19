@@ -1,15 +1,29 @@
-
- import { fmt } from '../lib/utils';
+import { fmt } from '../lib/utils';
+import FirmaEspacio from './firmas/FirmaEspacio';
 
 const V = ({ x, d }) => (x && String(x).trim() ? <b>{x}</b> : <b className="bl">{d || '__________'}</b>);
 
-// Plantilla del contrato (vista previa en vivo, se imprime como PDF)
-export default function Hoja({ modo, S }) {
-  const f = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+// Plantilla del contrato (vista previa en vivo, se imprime como PDF).
+// `firmas` es OPCIONAL: si no se pasa, renderiza igual que siempre (solo nombres).
+export default function Hoja({ modo, S, firmas }) {
+  const f = S.fecha || new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
   const cs = S.cods.filter(Boolean);
   const inm = <>{<V x={S.dir} />}, barrio <V x={S.bar} />, de la ciudad de <V x={S.ciu} />, cuyos linderos son: <V x={S.lin} d="____________________" /></>;
+  const Membrete = () => (
+    <div className="mem">
+      <div className="mem-h">
+        <div>
+          <h3 className="mem-t">Habitat Capital</h3>
+          <p className="mem-sub">Gestión inmobiliaria y contratos electrónicos</p>
+        </div>
+        <div className="mem-l">Documento generado electrónicamente<br />Referencia: {modo === 'arriendo' ? 'ARR' : 'CV'}-{f.replace(/[^0-9]/g, '').slice(-8).padStart(8, '0')}</div>
+      </div>
+      <hr />
+    </div>
+  );
   if (modo === 'arriendo') return (
     <div className="hoja">
+      <Membrete />
       <h3>CONTRATO DE ARRENDAMIENTO DE VIVIENDA URBANA</h3>
       <p>En <V x={S.ciu} />, a {f}, entre <b>{S.arr || 'EL ARRENDADOR'}</b>, en adelante EL ARRENDADOR, y <V x={S.ate} d="EL ARRENDATARIO" />, en adelante EL ARRENDATARIO{cs.length ? `, con la coarrendación/codeudoría de ${cs.join(', ')}` : ''}, se celebra el presente contrato:</p>
       <p><b>PRIMERA – Objeto.</b> EL ARRENDADOR entrega a título de arrendamiento el inmueble ubicado en {inm}.</p>
@@ -20,11 +34,17 @@ export default function Hoja({ modo, S }) {
       <p><b>SEXTA – Restitución.</b> Al terminar, EL ARRENDATARIO restituirá el inmueble en el estado en que lo recibió, salvo el desgaste natural.</p>
       <p><b>SÉPTIMA – Terminación.</b> El incumplimiento de cualquier obligación faculta a la parte cumplida para terminar el contrato conforme a la ley.</p>
       <p>Para constancia, se firma en dos ejemplares del mismo tenor.</p>
-      <div className="sig"><div>{S.arr || 'Arrendador'}<br /><small>Arrendador</small></div><div>{S.ate || 'Arrendatario'}<br /><small>Arrendatario</small></div>{cs.map((c, k) => <div key={k}>{c}<br /><small>Codeudor</small></div>)}</div>
+      <div className="sig">
+        <FirmaEspacio nombre={S.arr || 'Arrendador'} rol="Arrendador" imagen={firmas?.arrendador} />
+        <FirmaEspacio nombre={S.ate || 'Arrendatario'} rol="Arrendatario" imagen={firmas?.arrendatario} />
+        {cs.map((c, k) => <FirmaEspacio key={k} nombre={c} rol="Codeudor" />)}
+        {firmas && <FirmaEspacio nombre="Administrativo" rol="Administrativo" imagen={firmas?.administrador} />}
+      </div>
     </div>
   );
   return (
     <div className="hoja">
+      <Membrete />
       <h3>CONTRATO DE COMPRAVENTA DE INMUEBLE</h3>
       <p>En <V x={S.ciu} />, a {f}, entre <V x={S.vend} d="EL VENDEDOR" />, en adelante EL VENDEDOR, y <V x={S.comp} d="EL COMPRADOR" />, en adelante EL COMPRADOR, se celebra el presente contrato:</p>
       <p><b>PRIMERA – Objeto.</b> EL VENDEDOR transfiere a título de venta el inmueble ubicado en {inm}.</p>
@@ -34,7 +54,11 @@ export default function Hoja({ modo, S }) {
       <p><b>QUINTA – Entrega.</b> El inmueble se entregará a paz y salvo por impuestos y servicios públicos a la fecha de la escritura pública.</p>
       <p><b>SEXTA – Gastos.</b> Los gastos notariales y de registro serán asumidos por las partes en la proporción que la ley establece.</p>
       <p>Para constancia, se firma en dos ejemplares del mismo tenor.</p>
-      <div className="sig"><div>{S.vend || 'Vendedor'}<br /><small>Vendedor</small></div><div>{S.comp || 'Comprador'}<br /><small>Comprador</small></div></div>
+      <div className="sig">
+        <FirmaEspacio nombre={S.vend || 'Vendedor'} rol="Vendedor" imagen={firmas?.vendedor} />
+        <FirmaEspacio nombre={S.comp || 'Comprador'} rol="Comprador" imagen={firmas?.comprador} />
+        {firmas && <FirmaEspacio nombre="Administrativo" rol="Administrativo" imagen={firmas?.administrador} />}
+      </div>
     </div>
   );
 }

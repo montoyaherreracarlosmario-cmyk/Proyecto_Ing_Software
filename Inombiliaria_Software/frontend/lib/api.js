@@ -22,3 +22,11 @@ export async function crearInmueble(datos) {
   if (!r.ok) throw new Error('Error al guardar el inmueble');
   return r.json();
 }
+
+export async function setFotoInmueble(id, foto) {
+  const r = await fetch(`${API}/inmuebles/${id}/foto`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ foto }),
+  });
+  if (!r.ok) throw new Error('Error al guardar la foto');
+  return r.json();
+}

@@ -51,6 +51,7 @@ export class InmueblesService implements OnModuleInit {
       tipo: b.tipo, nombre: b.nombre.trim(), estado, valor,
       dir: b.dir.trim(), barrio: b.barrio?.trim() || '', lind: b.lind?.trim() || '',
       habitaciones: num(b.habitaciones), banos: num(b.banos), area: num(b.area),
+      foto: b.foto?.trim() || undefined,
     };
     if (estado === 'Arrendada') { doc.venc = b.venc || ''; doc.diaPago = num(b.dia) ?? 5; }
     return this.model.create(doc);
@@ -74,7 +75,15 @@ export class InmueblesService implements OnModuleInit {
       i.estado = 'Vendida';
       i.venc = '';
     }
-    Object.assign(i, { valor: Number(b.val), dir: b.dir, barrio: b.bar, lind: b.lin });
+    Object.assign(i, { valor: Number(b.val), dir: b.dir, barrio: b.bar, lind: b.lin, foto: b.foto?.trim() || i.foto });
+    return i.save();
+  }
+
+  // Actualiza (o limpia) la foto del inmueble
+  async setFoto(id: string, foto: string) {
+    const i = await this.model.findById(id);
+    if (!i) throw new NotFoundException('Inmueble no encontrado');
+    i.foto = (foto || '').trim();
     return i.save();
   }
 }

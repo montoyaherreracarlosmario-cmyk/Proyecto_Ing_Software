@@ -5,7 +5,7 @@
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
-
+    --bg: #eff3f1;
     --card: #ffffff;
     --tx: #14201d;
     --mut: #5b6b66;
@@ -178,6 +178,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 72px }
 .thumb { position: relative; height: 168px; overflow: hidden; background: linear-gradient(180deg, #0e4a41, #1e7667) }
 .thumb.Apartamento { background: linear-gradient(180deg, #1b3558, #34628f) }
 .thumb svg { display: block; width: 100%; height: 100% }
+.thumb .foto-thumb { display: block; width: 100%; height: 100%; object-fit: cover }
 .thumb .tag { position: absolute; top: 14px; left: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, .18) }
 .thumb.grande { height: 240px; border-radius: 0 }
 
@@ -298,22 +299,29 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
     color: #222;
     max-width: 660px;
     margin: 0 auto;
-    padding: 46px 52px;
+    padding: 46px 56px;
     border-radius: 4px;
     box-shadow: var(--sh2);
     border: 1px solid rgba(0, 0, 0, .06);
     font-family: Georgia, "Times New Roman", serif;
-    font-size: .86rem;
-    line-height: 1.7;
+    font-size: .88rem;
+    line-height: 1.75;
     text-align: justify;
     min-height: 700px
 }
-.hoja h3 { text-align: center; margin: 0 0 20px; font-family: Georgia, serif; font-size: 1rem; letter-spacing: .5px }
+.hoja .mem { margin-bottom: 18px }
+.hoja .mem-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px }
+.hoja .mem-t { margin: 0; font-size: 1.05rem; letter-spacing: .6px; color: #073f39; text-transform: uppercase; font-weight: 700 }
+.hoja .mem-sub { margin: 4px 0 0; font-size: .85rem; color: #374151 }
+.hoja .mem-l { text-align: right; font-size: .75rem; color: #4b5563; line-height: 1.4 }
+.hoja hr { border: 0; border-top: 1px solid #d1d5db; margin: 12px 0 18px }
+.hoja h3 { text-align: center; margin: 0 0 20px; font-family: Georgia, serif; font-size: 1.05rem; letter-spacing: .5px; color: #0f4c43 }
+.hoja h4 { margin: 16px 0 8px; font-size: .95rem; color: #0f4c43; font-weight: 700 }
 .hoja p { margin: 0 0 10px }
 .hoja b { color: #0f4c43 }
 .hoja .bl { color: #999; font-weight: 400; border-bottom: 1px solid #aaa }
-.hoja .sig { display: flex; justify-content: space-around; gap: 18px; flex-wrap: wrap; margin-top: 56px; text-align: center }
-.hoja .sig div { border-top: 1px solid #222; padding-top: 6px; min-width: 130px; font-size: .85rem }
+.hoja .sig { display: flex; justify-content: space-around; gap: 20px; flex-wrap: wrap; margin-top: 56px; text-align: center }
+.hoja .sig div { border-top: 1px solid #222; padding-top: 6px; min-width: 150px; font-size: .85rem }
 
 /* ---------- Aviso ---------- */
 #toast {

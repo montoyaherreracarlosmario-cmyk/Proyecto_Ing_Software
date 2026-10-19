@@ -1,14 +1,33 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { crearInmueble } from '../lib/api';
+import { subirImagen, urlImagen } from '../lib/apiImagenes';
 import Tarjeta from './Tarjeta';
 
 export default function InmuebleForm({ tipo0, volver, creado, avisar }) {
-  const [S, setS] = useState({ tipo: tipo0 || 'Casa', nombre: '', estado: 'Sin arrendar', dir: '', barrio: '', lind: '', habitaciones: '', banos: '', area: '', valor: '', venc: '', dia: 5 });
+  const [S, setS] = useState({ tipo: tipo0 || 'Casa', nombre: '', estado: 'Sin arrendar', dir: '', barrio: '', lind: '', habitaciones: '', banos: '', area: '', valor: '', venc: '', dia: 5, foto: '' });
   const [env, setEnv] = useState(false);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const fileRef = useRef(null);
   const set = (k) => (e) => setS({ ...S, [k]: e.target.value });
   // Función (no componente) para que el input no pierda el foco al escribir
   const campo = (k, l, t, p, min) => (<><label>{l}</label><input type={t || 'text'} min={min} placeholder={p} value={S[k]} onChange={set(k)} /></>);
+
+  const elegirFoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setSubiendoFoto(true);
+    try {
+      const { url } = await subirImagen(file, S.tipo === 'Casa' ? 'casa' : 'apartamento');
+      setS((p) => ({ ...p, foto: url }));
+      avisar('Foto subida correctamente');
+    } catch (er) {
+      avisar(er.message || 'No se pudo subir la foto');
+    } finally {
+      setSubiendoFoto(false);
+    }
+  };
 
   const guardar = async () => {
     if (!S.nombre.trim() || !S.dir.trim() || S.valor === '') return avisar('Completa nombre, dirección y valor');
@@ -42,6 +61,14 @@ export default function InmuebleForm({ tipo0, volver, creado, avisar }) {
           </div>
           {campo('valor', S.estado === 'Para la venta' ? 'Precio de venta *' : 'Valor mensual *', 'number', '', 0)}
           {arrendada && <>{campo('venc', 'Vencimiento del contrato', 'date')}{campo('dia', 'Día de pago de cada mes', 'number', '', 1)}</>}
+          <label>Foto del inmueble (opcional)</label>
+          <div className="row">
+            <button className="o" disabled={subiendoFoto} onClick={() => fileRef.current?.click()}>
+              {subiendoFoto ? 'Subiendo…' : S.foto ? 'Cambiar foto' : 'Subir foto'}
+            </button>
+            {S.foto && <button className="l" onClick={() => setS({ ...S, foto: '' })}>Quitar</button>}
+          </div>
+          <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" style={{ display: 'none' }} onChange={elegirFoto} />
           <div className="row"><button className="g" disabled={env} onClick={guardar}>{env ? 'Guardando…' : 'Guardar inmueble'}</button></div>
         </div>
         <div>

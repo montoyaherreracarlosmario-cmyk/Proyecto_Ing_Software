@@ -1,28 +1,30 @@
 'use client';
 import { useState } from 'react';
 import Hoja from './Hoja';
-
-import { crearContrato } from '../lib/api';
+import { crearAcuerdo } from '../lib/apiFirmas';
 
 export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) {
   const [modo, setModo] = useState(modo0);
-  const [link, setLink] = useState('');
+  const [links, setLinks] = useState([]);
+  const [creando, setCreando] = useState(false);
   const [S, setS] = useState({ arr: 'Inmobiliaria', ate: '', vend: '', comp: '', ciu: 'Ibagué', dir: inm.dir || '', bar: inm.barrio || '', lin: inm.lind || '', val: inm.valor || '', dur: 12, dia: 5, pago: 'De contado', cods: [''] });
   const set = (k) => (e) => setS({ ...S, [k]: e.target.value });
   // OJO: es una función (no un componente) para que el input no pierda el foco al escribir
   const campo = (k, l, t, p) => (<><label>{l}</label><input type={t || 'text'} placeholder={p} value={S[k]} onChange={set(k)} /></>);
 
-  const enviar = () => {
+  // Crea el acuerdo de firma en la API y genera el enlace privado de cada parte
+  const enviar = async () => {
     if (!(modo === 'arriendo' ? S.ate : S.comp)) return avisar('Escribe el nombre de la contraparte');
-    setLink(`${location.origin}/firma/${Math.random().toString(36).slice(2, 10)}`);
-  };
-  const firmar = async () => {
-    const firmantes = modo === 'arriendo' ? [S.arr, S.ate, ...S.cods] : [S.vend, S.comp];
+    setCreando(true);
     try {
-      await crearContrato(inm._id, { modo, firmantes, val: S.val, dur: S.dur, dia: S.dia, dir: S.dir, bar: S.bar, lin: S.lin });
-      avisar('Contrato firmado y guardado');
-      terminado();
-    } catch { avisar('No se pudo guardar el contrato'); }
+      const firmantes = modo === 'arriendo'
+        ? [{ rol: 'arrendador', nombre: S.arr }, { rol: 'arrendatario', nombre: S.ate }, { rol: 'administrador', nombre: 'Administrativo' }]
+        : [{ rol: 'comprador', nombre: S.comp }, { rol: 'vendedor', nombre: S.vend }, { rol: 'administrador', nombre: 'Administrativo' }];
+      const r = await crearAcuerdo({ inmueble: inm._id, tipo: modo, datos: S, firmantes });
+      setLinks(r.links.map((l) => ({ ...l, full: `${window.location.origin}${l.url}` })));
+      avisar('Enlaces de firma generados (comprador → vendedor → administrador)');
+    } catch { avisar('No se pudo crear el acuerdo de firma'); }
+    setCreando(false);
   };
 
   return (
@@ -49,11 +51,21 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
           <div className="visor noprint"><span className="tag pulse" style={{ margin: 0 }}>En vivo</span> Vista previa del PDF</div>
           <Hoja modo={modo} S={S} />
           <div className="row noprint" style={{ justifyContent: 'center' }}>
-            <button className="g" onClick={enviar}>Enviar link para firma</button>
+            <button className="g" onClick={enviar} disabled={creando}>{creando ? 'Generando…' : 'Enviar link para firma'}</button>
             <button onClick={() => window.print()}>Descargar PDF</button>
           </div>
-          {link && <div className="card view noprint"><b>Link de firma generado</b><div className="link">{link}</div>
-            <div className="row"><button onClick={() => { navigator.clipboard?.writeText(link); avisar('Link copiado'); }}>Copiar link</button><button className="g" onClick={firmar}>Simular firma</button></div></div>}
+          {links.length > 0 && (
+            <div className="card view noprint">
+              <b>Enlaces de firma (secuencia: comprador → vendedor → administrador)</b>
+              {links.map((l) => (
+                <div key={l.token} className="row" style={{ margin: '10px 0' }}>
+                  <span style={{ minWidth: 120, textTransform: 'capitalize' }}>{l.rol}</span>
+                  <span className="link" style={{ flex: 1 }}>{l.full}</span>
+                  <button onClick={() => { navigator.clipboard?.writeText(l.full); avisar('Link copiado'); }}>Copiar</button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -12,4 +12,8 @@ export class InmueblesController {
   @Post(':id/contratos') crearContrato(@Param('id') id: string, @Body() body: any) {
     return this.service.crearContrato(id, body);
   }
+
+  @Post(':id/foto') setFoto(@Param('id') id: string, @Body() body: any) {
+    return this.service.setFoto(id, body?.foto);
+  }
 }
