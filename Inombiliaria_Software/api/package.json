@@ -1,0 +1,20 @@
+{
+  "name": "habitat-capital-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API independiente: módulo de firmas electrónicas + subida genérica de imágenes",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "mongoose": "^8.9.0",
+    "multer": "^2.4.0",
+    "pdf-lib": "^1.17.1",
+    "sharp": "^0.33.5"
+  }
+}

@@ -39,7 +39,7 @@ export default function Home() {
         {!data && !err && <p className="mut">Cargando inmuebles…</p>}
         {data && vista.n === 'lista' && <Lista data={data} tab={tab} setTab={setTab} filtros={filtros} setFiltros={setFiltros} nuevo={() => { scrollTo(0, 0); setVista({ n: 'nuevo' }); }} abrir={(id) => setVista({ n: 'detalle', id })} />}
         {data && vista.n === 'nuevo' && <InmuebleForm tipo0={tab} avisar={avisar} volver={() => setVista({ n: 'lista' })} creado={(nuevo) => { avisar('Inmueble agregado'); cargar(); setTab(nuevo.tipo); setFiltros(FILTROS0); setVista({ n: 'lista' }); }} />}
-        {data && vista.n === 'detalle' && sel && <Detalle inm={sel} volver={() => setVista({ n: 'lista' })} crear={(modo) => { scrollTo(0, 0); setVista({ n: 'form', id: sel._id, modo }); }} />}
+        {data && vista.n === 'detalle' && sel && <Detalle inm={sel} avisar={avisar} actualizar={(act) => setData((d) => d.map((x) => (x._id === act._id ? act : x)))} volver={() => setVista({ n: 'lista' })} crear={(modo) => { scrollTo(0, 0); setVista({ n: 'form', id: sel._id, modo }); }} />}
         {data && vista.n === 'form' && sel && <ContratoForm inm={sel} modo0={vista.modo} avisar={avisar} volver={() => setVista({ n: 'detalle', id: sel._id })} terminado={() => { cargar(); setVista({ n: 'detalle', id: sel._id }); }} />}
       </main>
       {toast && <div id="toast">{toast}</div>}
