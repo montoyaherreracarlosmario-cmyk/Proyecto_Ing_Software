@@ -1,27 +1,47 @@
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const multer = require('multer');
-const sharp = require('sharp');
+import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
+import crypto from 'crypto';
+import multer from 'multer';
+import sharp from 'sharp';
 
-const UPLOAD_DIR = path.resolve(process.cwd(), process.env.UPLOAD_DIR || 'uploads/imagenes');
+// Carpeta destino: UPLOAD_DIR (env) o, si no existe/es de solo lectura, la temporal del SO
+// (Render free solo permite escribir en /tmp; en local queda en uploads/imagenes).
+function dirDefecto() {
+  const local = path.resolve(process.cwd(), 'uploads/imagenes');
+  try {
+    fs.mkdirSync(local, { recursive: true });
+    return local;
+  } catch {
+    return path.join(os.tmpdir(), 'habitat-uploads');
+  }
+}
+
+export const UPLOAD_DIR = process.env.UPLOAD_DIR
+  ? path.resolve(process.cwd(), process.env.UPLOAD_DIR)
+  : dirDefecto();
+
 const MAX = Number(process.env.MAX_IMAGEN_BYTES || 10485760); // 10 MB
-const TIPOS = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
+const TIPOS: any = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 // Guarda en memoria; sharp valida de verdad que sea una imagen (magic bytes)
-const subir = multer({
+export const subirOpciones = {
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX },
-  fileFilter: (req, file, cb) => {
-    if (!TIPOS[file.mimetype]) return cb(new Error('Formato no permitido (solo PNG, JPG o WEBP)'));
+  fileFilter: (req: any, file: any, cb: any) => {
+    if (!TIPOS[file.mimetype]) {
+      const e: any = new Error('Formato no permitido (solo PNG, JPG o WEBP)');
+      e.status = 400;
+      return cb(e);
+    }
     cb(null, true);
   },
-});
+};
 
 // Valida, redimensiona (≤2048 px) y escribe en disco. Devuelve el nombre de archivo.
-async function procesar(buffer, tipoCampo) {
+export async function procesar(buffer: Buffer, tipoCampo: any) {
   const meta = await sharp(buffer).metadata(); // lanza si no es imagen real
   if (!meta.width || !meta.height) throw new Error('Archivo corrupto');
 
@@ -38,7 +58,7 @@ async function procesar(buffer, tipoCampo) {
   return { nombre, width: redim.width, height: redim.height };
 }
 
-function listar(tipo) {
+export function listar(tipo?: string) {
   const archivos = fs.readdirSync(UPLOAD_DIR).filter((f) => !f.startsWith('.'));
   const filtrados = tipo ? archivos.filter((f) => f.startsWith(`${tipo}-`)) : archivos;
   return filtrados.sort().reverse().map((f) => ({
@@ -47,5 +67,3 @@ function listar(tipo) {
     tipo: f.split('-')[0],
   }));
 }
-
-module.exports = { subir, procesar, listar, UPLOAD_DIR };

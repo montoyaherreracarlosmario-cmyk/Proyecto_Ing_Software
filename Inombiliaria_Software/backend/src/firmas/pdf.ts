@@ -1,7 +1,6 @@
-const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
-const mongoose = require('mongoose');
-const { GridFSBucket } = require('mongodb');
-const clausulas = require('./clausulas');
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { GridFSBucket } from 'mongodb';
+import * as clausulas from './clausulas';
 
 const A4 = { w: 595.28, h: 841.89 };
 const M = 50; // margen
@@ -10,12 +9,12 @@ const NEGRO = rgb(0.13, 0.13, 0.13);
 const VERDE = rgb(0.06, 0.30, 0.26);
 const GRIS = rgb(0.4, 0.4, 0.4);
 
-const METODOS = { tipografica: 'Tipográfica (teclado)', canvas: 'A pulso (canvas)', imagen: 'Imagen subida' };
+const METODOS: any = { tipografica: 'Tipográfica (teclado)', canvas: 'A pulso (canvas)', imagen: 'Imagen subida' };
 
 // pdf-lib no envuelve texto: word-wrap manual con medición de fuente
-function envolver(texto, fuente, tam, anchoMax) {
+function envolver(texto: any, fuente: any, tam: number, anchoMax: number) {
   const palabras = String(texto).split(/\s+/);
-  const lineas = [];
+  const lineas: string[] = [];
   let actual = '';
   for (const p of palabras) {
     const cand = actual ? actual + ' ' + p : p;
@@ -26,7 +25,7 @@ function envolver(texto, fuente, tam, anchoMax) {
   return lineas;
 }
 
-function fechaBogota(date) {
+function fechaBogota(date: any) {
   return new Date(date).toLocaleString('es-CO', {
     timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
@@ -34,7 +33,7 @@ function fechaBogota(date) {
 }
 
 // Estado del dibujo de página (página actual + posición Y)
-function paginar(doc, estado) {
+function paginar(doc: any, estado: any) {
   if (!estado.pag || estado.y < M + 40) {
     estado.pag = doc.addPage([A4.w, A4.h]);
     estado.y = A4.h - M;
@@ -42,14 +41,14 @@ function paginar(doc, estado) {
   return estado.pag;
 }
 
-async function generarPdf(acuerdo) {
+export async function generarPdf(acuerdo: any) {
   const doc = await PDFDocument.create();
   const helv = await doc.embedFont(StandardFonts.Helvetica);
   const negrita = await doc.embedFont(StandardFonts.HelveticaBold);
   const courier = await doc.embedFont(StandardFonts.Courier);
   const italica = await doc.embedFont(StandardFonts.HelveticaOblique);
 
-  const est = { pag: null, y: 0 };
+  const est = { pag: null as any, y: 0 };
   const plantilla = clausulas.construir(acuerdo.tipo, { ...acuerdo.datos, fecha: acuerdo.fechaContrato });
 
   // ===== Membrete =====
@@ -69,7 +68,7 @@ async function generarPdf(acuerdo) {
   est.y -= 34;
 
   // ===== Título =====
-  let t = plantilla.titulo;
+  const t = plantilla.titulo;
   est.pag.drawText(t, { x: (A4.w - negrita.widthOfTextAtSize(t, 13)) / 2, y: est.y, size: 13, font: negrita, color: VERDE });
   est.y -= 14;
   est.pag.drawLine({ start: { x: M + 40, y: est.y }, end: { x: A4.w - M - 40, y: est.y }, thickness: 0.6, color: GRIS });
@@ -87,11 +86,11 @@ async function generarPdf(acuerdo) {
       }
       // el resto del párrafo va en la misma línea visual cuando es corto
       const lineas = envolver(p.resto, helv, 10.5, COL);
-      lineas.forEach((l, i) => {
+      for (const l of lineas) {
         paginar(doc, est);
         est.pag.drawText(l, { x: M, y: est.y, size: 10.5, font: helv, color: NEGRO });
         est.y -= 15;
-      });
+      }
     } else {
       for (const l of envolver(p.resto, helv, 10.5, COL)) {
         paginar(doc, est);
@@ -104,8 +103,8 @@ async function generarPdf(acuerdo) {
 
   // ===== Bloque de firmas =====
   est.y -= 30;
-  const filas = [];
-  let fila = [];
+  const filas: any[][] = [];
+  let fila: any[] = [];
   for (const f of acuerdo.firmantes) {
     fila.push(f);
     if (fila.length === 2) { filas.push(fila); fila = []; }
@@ -119,7 +118,6 @@ async function generarPdf(acuerdo) {
     for (let i = 0; i < fr.length; i++) {
       const f = fr[i];
       const x = M + i * (anchoCol + 20);
-      const yBase = est.y;
       // imagen de firma (PNG con fondo transparente, 600x240)
       if (f.imagen && f.estado === 'firmada') {
         try {
@@ -127,7 +125,7 @@ async function generarPdf(acuerdo) {
           const embebida = await doc.embedPng(Buffer.from(png, 'base64'));
           const wImg = 140;
           const hImg = wImg * (embebida.height / embebida.width);
-          est.pag.drawImage(embebida, { x: x + (anchoCol - wImg) / 2, y: yBase - hImg + 16, width: wImg, height: hImg });
+          est.pag.drawImage(embebida, { x: x + (anchoCol - wImg) / 2, y: est.y - hImg + 16, width: wImg, height: hImg });
         } catch { /* si el PNG falla, sigue con solo el nombre */ }
       }
       // línea de firma
@@ -146,7 +144,7 @@ async function generarPdf(acuerdo) {
   }
 
   // ===== Anexo de evidencia (solo con al menos una firma) =====
-  const firmadas = acuerdo.firmantes.filter((f) => f.evidencia);
+  const firmadas = acuerdo.firmantes.filter((f: any) => f.evidencia);
   if (firmadas.length) {
     est.pag = doc.addPage([A4.w, A4.h]);
     est.y = A4.h - M;
@@ -216,7 +214,7 @@ async function generarPdf(acuerdo) {
     }
 
     // Rechazo si existe
-    const rech = acuerdo.firmantes.find((f) => f.rechazo);
+    const rech = acuerdo.firmantes.find((f: any) => f.rechazo);
     if (rech) {
       est.y -= 6;
       paginar(doc, est);
@@ -240,27 +238,25 @@ async function generarPdf(acuerdo) {
 }
 
 // ===== GridFS: el PDF final se congela al cerrar el acuerdo =====
-async function guardarEnGridFS(buffer, nombre) {
-  const bucket = new GridFSBucket(mongoose.connection.db, { bucketName: 'pdfs' });
+export async function guardarEnGridFS(buffer: Buffer, nombre: string, db: any) {
+  const bucket = new GridFSBucket(db, { bucketName: 'pdfs' });
   const stream = bucket.openUploadStream(nombre);
-  await new Promise((res, rej) => {
-    stream.on('finish', res);
+  await new Promise<void>((res, rej) => {
+    stream.on('finish', () => res());
     stream.on('error', rej);
     stream.end(buffer);
   });
   return stream.id;
 }
 
-async function leerDeGridFS(id) {
-  const bucket = new GridFSBucket(mongoose.connection.db, { bucketName: 'pdfs' });
+export async function leerDeGridFS(id: any, db: any) {
+  const bucket = new GridFSBucket(db, { bucketName: 'pdfs' });
   const stream = bucket.openDownloadStream(id);
-  const chunks = [];
-  await new Promise((res, rej) => {
+  const chunks: Buffer[] = [];
+  await new Promise<void>((res, rej) => {
     stream.on('data', (c) => chunks.push(c));
-    stream.on('end', res);
+    stream.on('end', () => res());
     stream.on('error', rej);
   });
   return Buffer.concat(chunks);
 }
-
-module.exports = { generarPdf, guardarEnGridFS, leerDeGridFS };

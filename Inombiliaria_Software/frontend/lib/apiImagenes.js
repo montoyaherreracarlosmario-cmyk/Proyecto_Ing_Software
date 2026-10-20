@@ -1,5 +1,5 @@
-// Cliente de la sub-api de imágenes del API Express (NEXT_PUBLIC_API_FIRMAS)
-const API = process.env.NEXT_PUBLIC_API_FIRMAS || 'http://localhost:4100';
+// Cliente de la sub-api de imágenes (vive en el backend NestJS, raíz /api/imagenes)
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 // Sube un archivo de imagen. Devuelve { nombre, url, tipo } (url relativa: /archivos/...)
 export async function subirImagen(file, tipo = 'casa') {

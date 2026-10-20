@@ -1,12 +1,12 @@
 // Plantillas del contrato en texto — ESPEJO EXACTO de frontend/components/Hoja.js.
 // Si se cambia una cláusula allá, cambiarla aquí (checklist del README_FIRMAS.md).
 
-const fmt = (n) => '$ ' + Number(n || 0).toLocaleString('es-CO');
-const campo = (v, def) => (v && String(v).trim() ? String(v) : def || '__________');
+const fmt = (n: any) => '$ ' + Number(n || 0).toLocaleString('es-CO');
+const campo = (v: any, def?: string) => (v && String(v).trim() ? String(v) : def || '__________');
 
 // Devuelve { titulo, parrafos: [{ pre, resto }], firmas: [{ nombre, rol }] }
 // pre = cláusula en negrita ("PRIMERA – Objeto."), resto = cuerpo del párrafo.
-function construir(tipo, d) {
+export function construir(tipo: string, d: any) {
   const ciudad = campo(d.ciu, '__________');
   const dir = campo(d.dir, '__________');
   const barrio = campo(d.bar, '__________');
@@ -32,7 +32,7 @@ function construir(tipo, d) {
     return {
       titulo: 'CONTRATO DE ARRENDAMIENTO DE VIVIENDA URBANA',
       parrafos,
-      firmas: [{ nombre: arr, rol: 'Arrendador' }, { nombre: ate, rol: 'Arrendatario' }, ...cods.map((c) => ({ nombre: c, rol: 'Codeudor' }))],
+      firmas: [{ nombre: arr, rol: 'Arrendador' }, { nombre: ate, rol: 'Arrendatario' }, ...cods.map((c: string) => ({ nombre: c, rol: 'Codeudor' }))],
     };
   }
 
@@ -54,5 +54,3 @@ function construir(tipo, d) {
     firmas: [{ nombre: vend, rol: 'Vendedor' }, { nombre: comp, rol: 'Comprador' }],
   };
 }
-
-module.exports = { construir };
