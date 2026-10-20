@@ -1,6 +1,5 @@
-// Cliente HTTP del módulo de firmas (API independiente en el puerto 4100).
-// El backend NestJS (lib/api.js) NO se toca; esta API vive en la carpeta api/.
-const API = process.env.NEXT_PUBLIC_API_FIRMAS || 'http://localhost:4100';
+// Cliente HTTP del módulo de firmas (vive en el backend NestJS, raíz /api/firmas).
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 async function j(r) {
   if (!r.ok) {

@@ -6,36 +6,38 @@ Documento de todo lo que se construyó en esta entrega. El `README.md` original 
 
 ## 1. Resumen ejecutivo
 
-Se implementaron dos entregables nuevos, **sin modificar el backend NestJS**:
+Se implementaron dos entregables nuevos, integrados **dentro del backend NestJS existente** (un solo servicio, puerto 4000):
 
 1. **Módulo de firmas electrónicas** con firma secuencial (comprador → vendedor → administrador), 3 métodos de firma, evidencia técnica por firma (fecha, hora, IP, hash SHA-256 encadenado), PDF final único con anexo de evidencia y verificación de integridad, conforme a la **Ley 527 de 1999**.
 2. **API genérica de subida de imágenes** (fotos de casas, hoteles, etc.), independiente del módulo de firmas.
 
-Todo vive en la carpeta **`api/`** (Express, puerto 4100) más archivos nuevos en el frontend. La única edición a código existente fueron **~13 líneas en 2 archivos** (ver §10), sin cambiar el comportamiento actual.
+Todo vive en `backend/src/firmas/` y `backend/src/imagenes/` (módulos NestJS registrados en `AppModule`) más los archivos nuevos del frontend. La API Express independiente que existía en la carpeta `api/` (puerto 4100) fue **eliminada** tras portar sus rutas: el frontend consume todo desde `NEXT_PUBLIC_API_URL` (el mismo backend de siempre). Las rutas `/api/firmas/...`, `/api/imagenes/...`, `/archivos/:nombre` y `/api/salud` se conservan **idénticas** a la API original.
 
 ## 2. Estructura de carpetas creada
 
 ```
 Inombiliaria_Software/
-├── api/                                # NUEVA — Express + Mongoose, puerto 4100
-│   ├── package.json                    # express, mongoose, multer 2.x, sharp, pdf-lib, cors, dotenv
-│   ├── .env.example                    # MONGODB_URI, PORT, FRONTEND_URL, UPLOAD_DIR, límites
-│   ├── .gitignore                      # node_modules, .env, uploads/
+├── backend/                            # NestJS existente + módulos nuevos (puerto 4000)
 │   └── src/
-│       ├── server.js                   # Express: CORS, JSON 10mb, routers, estáticos, errores
-│       ├── db.js                       # mongoose.connect (misma BD que el backend Nest)
+│       ├── main.ts                     # + express.json({limit:'10mb'}) y estáticos /archivos
+│       ├── app.module.ts               # + FirmasModule, ImagenesModule y filtro global
+│       ├── filtros.ts                  # ErrorFirma/Multer/HttpException → {error:'...'}
 │       ├── firmas/
-│       │   ├── model.js                # Schemas: AcuerdoFirma, Firma, Evidencia, Rechazo
-│       │   ├── hash.js                 # SHA-256 canónico, cadena encadenada, tokens, IP
-│       │   ├── clausulas.js            # Plantilla del contrato (espejo de Hoja.js) para el PDF
-│       │   ├── pdf.js                  # pdf-lib: contrato + firmas + anexo evidencia + GridFS
-│       │   ├── service.js              # crear, firmar (turnos), rechazar, verificar, PDF
-│       │   └── routes.js               # 6 endpoints bajo /api/firmas
-│       └── imagenes/                   # sub-api genérica (sin conexión con firmas)
-│           ├── storage.js              # multer 2.x + sharp: valida, redimensiona ≤2048px
-│           └── routes.js               # POST /subir, GET / (listado)
+│       │   ├── firmas.module.ts        # MongooseModule.forFeature + controladores
+│       │   ├── firmas.controller.ts    # 7 endpoints bajo /api/firmas
+│       │   ├── salud.controller.ts     # GET /api/salud
+│       │   ├── firmas.service.ts       # crear, firmar (turnos), rechazar, verificar, PDF
+│       │   ├── model.ts                # Schemas: AcuerdoFirma, Firma, Evidencia, Rechazo
+│       │   ├── hash.ts                 # SHA-256 canónico, cadena encadenada, tokens, IP
+│       │   ├── clausulas.ts            # Plantilla del contrato (espejo de Hoja.js) para el PDF
+│       │   ├── errores.ts              # ErrorFirma(status, mensaje)
+│       │   └── pdf.ts                  # pdf-lib: contrato + evidencia + GridFS (recibe la conexión de Nest)
+│       └── imagenes/
+│           ├── imagenes.module.ts
+│           ├── imagenes.controller.ts  # POST /subir, GET / (listado)
+│           └── storage.ts              # multer 2.x + sharp: valida, redimensiona ≤2048px
 │
-├── frontend/                           # SOLO archivos nuevos + 2 ediciones mínimas
+├── frontend/                           # archivos nuevos + ediciones mínimas
 │   ├── app/firma/[token]/page.js       # NUEVA ruta de firma (antes daba 404)
 │   ├── app/firma/[token]/firma.css     # estilos propios del módulo + impresión
 │   ├── components/firmas/
@@ -46,12 +48,13 @@ Inombiliaria_Software/
 │   │   ├── FirmaEspacio.js             # slot de firma dentro del contrato
 │   │   └── EvidenciaTabla.js           # tabla de evidencia técnica
 │   ├── lib/normalizar.js               # normalización PNG 600×240 + quitar fondo
-│   └── lib/apiFirmas.js                # cliente HTTP de la API de firmas
+│   ├── lib/apiFirmas.js                # cliente HTTP de firmas → NEXT_PUBLIC_API_URL
+│   └── lib/apiImagenes.js              # cliente HTTP de imágenes → NEXT_PUBLIC_API_URL
 │
 └── README_FIRMAS.md                    # este documento
 ```
 
-**Archivos existentes modificados (2, ver §10):** `components/Hoja.js` y `components/ContratoForm.js`.
+**Archivos existentes modificados (ver §10).**
 
 ## 3. Los 3 métodos de firma
 
@@ -89,7 +92,7 @@ en_firma ──(comprador firma)──► en_firma ──(vendedor firma)──�
 - Tras cerrar, cualquier intento de firmar responde `409` (bloqueo server-side).
 - El administrador (orden 3) puede **rechazar con observaciones**; las firmas de comprador y vendedor se conservan como evidencia en el PDF del estado rechazado.
 
-## 5. Modelo de datos (colección `acuerdosfirmas`, misma BD)
+## 5. Modelo de datos (colección `acuerdofirmas`, misma BD)
 
 ```js
 AcuerdoFirma {
@@ -159,37 +162,35 @@ Encaje con la Ley 527 (mensajes de datos):
 
 ## 8. PDF final e impresión
 
-- **PDF del servidor** (`api/src/firmas/pdf.js`, pdf-lib, A4): cláusulas del contrato (espejo de `Hoja.js`), bloque de firmas con las imágenes PNG embebidas (140 px de ancho, proporcionales) y **anexo de evidencia** (tabla + hash del contrato + huellas encadenadas en Courier + nota Ley 527 + rechazo si existe).
+- **PDF del servidor** (`backend/src/firmas/pdf.ts`, pdf-lib, A4): cláusulas del contrato (espejo de `Hoja.js`), bloque de firmas con las imágenes PNG embebidas (140 px de ancho, proporcionales) y **anexo de evidencia** (tabla + hash del contrato + huellas encadenadas en Courier + nota Ley 527 + rechazo si existe).
 - **Vista en navegador**: la ruta `/firma/[token]` renderiza el mismo componente `Hoja` con las firmas ya registradas incrustadas.
 - **Impresión/PDF del navegador**: `window.print()` con el `@media print` existente (A4) más reglas nuevas en `firma.css` (oculta controles, conserva contrato y evidencia).
 - **Antes de firmar**: impresión y descarga disponibles (PDF del navegador con espacios vacíos). **Después de cerrar**: PDF del servidor único con todo.
 
 ## 9. Instalación y arranque
 
-Tres procesos (backend intacto + api nueva + frontend):
+Dos procesos (todo el backend en un solo servicio):
 
 ```bash
-# 1. Backend NestJS (puerto 4000) — como siempre
+# 1. Backend NestJS (puerto 4000) — firmas + imágenes + inmuebles
 cd Inombiliaria_Software/backend
 npm install
-cp .env.example .env   # pon tu MONGODB_URI
+cp .env.example .env   # pon tu MONGODB_URI (y FRONTEND_URL para CORS)
+
+# Sin MongoDB local: demo efímera en 27017 (solo desarrollo)
+node demo-mongo.js
+
 npm run start:dev
 
-# 2. API de firmas + imágenes (puerto 4100) — NUEVA
-cd Inombiliaria_Software/api
-npm install
-cp .env.example .env   # misma MONGODB_URI
-npm run dev            # o npm start
-
-# 3. Frontend (puerto 3000) — como siempre
+# 2. Frontend (puerto 3000)
 cd Inombiliaria_Software/frontend
 npm install
 npm run dev
 ```
 
-Variables relevantes de `api/.env`: `MONGODB_URI` (misma que el backend), `PORT=4100`, `FRONTEND_URL=http://localhost:3000`, `UPLOAD_DIR=uploads/imagenes`, `MAX_FIRMA_BYTES`, `MAX_IMAGEN_BYTES`.
+Variables relevantes del backend: `MONGODB_URI` (BD), `FRONTEND_URL` (CORS; acepta varias separadas por coma), `UPLOAD_DIR` (carpeta de imágenes; por defecto `uploads/imagenes` y si el SO es de solo lectura cae a la temporal del SO), `MAX_FIRMA_BYTES` (1 MB), `MAX_IMAGEN_BYTES` (10 MB). El JSON de las firmas se lee con límite de **10 MB** (`main.ts`).
 
-En producción (Render/Vercel): desplegar `api/` como servicio Node más (build: `npm install`, start: `npm start`); en el frontend definir `NEXT_PUBLIC_API_FIRMAS=https://tu-api.onrender.com` (por defecto usa `http://localhost:4100`).
+En producción **no hay servicio extra**: Vercel (frontend) define `NEXT_PUBLIC_API_URL=https://proyecto-ing-software-2ek3.onrender.com` (el backend NestJS de Render, que ya existía) y Render redespliega solo desde GitHub. Rutas idénticas → el solo hecho de apuntar la variable al backend resuelve el `Failed to fetch`.
 
 ## 10. Archivos existentes modificados (los únicos)
 
@@ -197,35 +198,43 @@ En producción (Render/Vercel): desplegar `api/` como servicio Node más (build:
 |---|---|---|
 | `frontend/components/Hoja.js` | Prop opcional `firmas` (default `undefined` ⇒ render idéntico al anterior); los slots `.sig` usan `<FirmaEspacio>`; el bloque del administrativo solo se muestra cuando se pasa `firmas`; `S.fecha` congela la fecha del contrato | ~12 |
 | `frontend/components/ContratoForm.js` | El botón “Enviar link para firma” llama a `crearAcuerdo` y muestra los 3 enlaces reales; se eliminó el link falso (`Math.random`) y el botón “Simular firma” | ~10 |
+| `frontend/lib/apiFirmas.js` | `NEXT_PUBLIC_API_FIRMAS`/`:4100` → `NEXT_PUBLIC_API_URL`/`:4000` (mismo backend) | 2 |
+| `frontend/lib/apiImagenes.js` | Igual: `NEXT_PUBLIC_API_FIRMAS`/`:4100` → `NEXT_PUBLIC_API_URL`/`:4000` | 2 |
+| `backend/src/app.module.ts` | Registra `FirmasModule`, `ImagenesModule` y el filtro global de errores | +5 |
+| `backend/src/main.ts` | `express.json({limit:'10mb'})` (firmas base64) + `express.static` de `/archivos` | +5 |
+| `backend/package.json` | Dependencias del port: `multer`, `pdf-lib`, `sharp` (+ `mongodb-memory-server` dev para el demo local) | 3 |
 
-**No se tocó:** backend NestJS (0 archivos), `lib/api.js`, `globals.css`, `page.js`, catálogo, login, `Detalles.js`, etc.
+**No se tocó:** esquemas/servicios/rutas de inmuebles, `lib/api.js`, `globals.css`, `page.js`, catálogo, login, `Detalles.js`, etc.
 
 ## 11. Pruebas realizadas (checklist E2E)
 
-Ejecutado con `mongodb-memory-server` contra el `service.js` real (14 aserciones, todas OK):
+**E2E contra el backend NestJS en `http://localhost:4000` (23 aserciones, todas OK):**
 
-1. Mongo en memoria OK.
-2. Acuerdo crea 3 tokens.
-3. Firmar fuera de turno → `409` (“Ahora le corresponde firmar a: comprador”).
-4. Firmar sin aceptar condiciones → `400`.
-5. Comprador firma (canvas) → turno pasa a vendedor.
-6. Vendedor firma (tipográfica) → turno pasa a administrador.
-7. Acuerdo paralelo (arriendo): admin **rechaza** con observaciones → estado `rechazado`, observaciones registradas.
-8. Admin firma (imagen) → estado `firmado`, PDF disponible.
-9. Firmar con acuerdo cerrado → `409` (bloqueadas).
-10. Verificar integridad → `integro: true`, 3/3 firmas verificadas.
-11. Verificar acuerdo rechazado → `integro: true` (2/3 firmas + rechazo).
-12. Alterar el contrato en BD → verificación responde `integro: false`.
-13. PDF descargado desde GridFS (19 KB, cabecera `%PDF-`).
-14. Token falso → `404`.
+1. `GET /api/salud` → `ok:true`.
+2. `GET /inmuebles` → semilla cargada.
+3. `POST /api/firmas/acuerdos` → acuerdo + 3 links (HTTP 200).
+4. JSON de 200 KB aceptado (límite 10 MB de `main.ts`).
+5. Firmar fuera de turno (admin primero) → `409`.
+6. Firmar sin aceptar condiciones → `400`.
+7. Firma 1 (arrendador) → turno pasa a 2; repetir firma propia → `409`.
+8. Firma 2 (arrendatario) → turno pasa a 3; firma 3 (admin) → `firmado`, PDF disponible.
+9. PDF → cabecera `%PDF`, membrete “HABITAT CAPITAL” y título (streams descomprimidos).
+10. Verificar integridad → `integro:true`, 3/3 firmas verificadas.
+11. Token inexistente → `404`.
+12. Acuerdo paralelo: admin **rechaza** con observaciones → `rechazado` + PDF del rechazado → `200`.
+13. Alterar el contrato en BD → verificación responde `integro:false` / `contratoIntegro:false`.
+14. Subir imagen (`multipart`) → `200` con `/archivos/...`; servida con `image/png`.
+15. Mimetype no permitido → `400`; PNG corrupto → `400` (magic bytes con sharp).
+16. Listado `GET /api/imagenes?tipo=casa`.
+17. CORS con el `Origin` de Vercel → `access-control-allow-origin` permitido.
 
-Además: `sharp` redimensiona y rechaza archivos corruptos; `next build` compila con la nueva ruta `/firma/[token]` (8.43 kB) y la portada intacta.
+Además: `tsc --noEmit` sin errores y `next build` compila con la ruta `/firma/[token]` y la portada intacta.
 
 ## 12. Limitaciones y mejoras futuras
 
 - **Autenticación**: no hay login en la plataforma; la identidad se aporta en el enlace. Mejora: JWT/ magic links por email.
 - **Firma digital certificada**: migrar a PKI (GovCo / Cámara de Comercio) para valor probatorio reforzado.
 - **Notificaciones**: los enlaces se copian a mano; falta envío automático por correo (SMTP/SendGrid).
-- **Storage de imágenes**: `api/uploads/` es local (efímero en Render). Mejora: Cloudinary/S3/GridFS.
+- **Storage de imágenes**: `backend/uploads/imagenes` es local (en Render free solo vive en `/tmp`, efímero). Mejora: Cloudinary/S3/GridFS.
 - **Firmas de codeudores**: en arriendo, los codeudores no firman por separado (solo aparecen en el contrato); el flujo de 3 firmas es comprador/arrendador → vendedor/arrendatario → administrador.
 - **Reintento de acuerdo rechazado**: actualmente se crea un nuevo acuerdo; no hay “reabrir el mismo”.

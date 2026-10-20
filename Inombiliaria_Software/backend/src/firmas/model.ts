@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+import { Schema } from 'mongoose';
 
 // ===== Evidencia técnica de una firma (se congela al firmar, jamás se muta) =====
 const EvidenciaSchema = new Schema({
@@ -36,7 +36,7 @@ const FirmaSchema = new Schema({
 }, { _id: false });
 
 // ===== Acuerdo de firma de un contrato =====
-const AcuerdoSchema = new Schema({
+export const AcuerdoSchema = new Schema({
   inmueble: { type: Schema.Types.ObjectId, ref: 'Inmueble' },
   tipo: { type: String, required: true, enum: ['arriendo', 'venta'] },
   datos: { type: Object, required: true },  // snapshot inmutable de los campos del contrato
@@ -49,6 +49,6 @@ const AcuerdoSchema = new Schema({
   rechazadoEn: Date,
 }, { timestamps: true });
 
-const AcuerdoFirma = model('AcuerdoFirma', AcuerdoSchema);
-
-module.exports = { AcuerdoFirma };
+// El modelo se registra vía MongooseModule.forFeature (FirmasModule) para que
+// use la conexión que gestiona Nest; nunca compilarlo con model() suelto.
+export const NOMBRE_ACUERDO = 'AcuerdoFirma';

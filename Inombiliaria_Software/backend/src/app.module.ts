@@ -1,7 +1,11 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { InmueblesModule } from './inmuebles/inmuebles.module';
+import { FirmasModule } from './firmas/firmas.module';
+import { ImagenesModule } from './imagenes/imagenes.module';
+import { FiltroApi } from './filtros';
 
 @Module({
   imports: [
@@ -14,6 +18,9 @@ import { InmueblesModule } from './inmuebles/inmuebles.module';
       }),
     }),
     InmueblesModule,
+    FirmasModule,
+    ImagenesModule,
   ],
+  providers: [{ provide: APP_FILTER, useClass: FiltroApi }],
 })
 export class AppModule {}
