@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { InmueblesModule } from './inmuebles/inmuebles.module';
 import { FirmasModule } from './firmas/firmas.module';
 import { ImagenesModule } from './imagenes/imagenes.module';
+import { AuthModule } from './auth/auth.module';
+import { AuthGuard } from './auth/auth.guard';
 import { FiltroApi } from './filtros';
 
 @Module({
@@ -20,7 +22,12 @@ import { FiltroApi } from './filtros';
     InmueblesModule,
     FirmasModule,
     ImagenesModule,
+    AuthModule,
   ],
-  providers: [{ provide: APP_FILTER, useClass: FiltroApi }],
+  providers: [
+    { provide: APP_FILTER, useClass: FiltroApi },
+    // Guard global de sesión: protege todo salvo las rutas marcadas con @Public()
+    { provide: APP_GUARD, useClass: AuthGuard },
+  ],
 })
 export class AppModule {}

@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { crearInmueble } from '../lib/api';
 import { subirImagen, urlImagen } from '../lib/apiImagenes';
 import Tarjeta from './Tarjeta';
+import Ilustra from './Ilustra';
 
 export default function InmuebleForm({ tipo0, volver, creado, avisar }) {
   const [S, setS] = useState({ tipo: tipo0 || 'Casa', nombre: '', estado: 'Sin arrendar', dir: '', barrio: '', lind: '', habitaciones: '', banos: '', area: '', valor: '', venc: '', dia: 5, foto: '' });
@@ -62,11 +63,24 @@ export default function InmuebleForm({ tipo0, volver, creado, avisar }) {
           {campo('valor', S.estado === 'Para la venta' ? 'Precio de venta *' : 'Valor mensual *', 'number', '', 0)}
           {arrendada && <>{campo('venc', 'Vencimiento del contrato', 'date')}{campo('dia', 'Día de pago de cada mes', 'number', '', 1)}</>}
           <label>Foto del inmueble (opcional)</label>
-          <div className="row">
-            <button className="o" disabled={subiendoFoto} onClick={() => fileRef.current?.click()}>
-              {subiendoFoto ? 'Subiendo…' : S.foto ? 'Cambiar foto' : 'Subir foto'}
-            </button>
-            {S.foto && <button className="l" onClick={() => setS({ ...S, foto: '' })}>Quitar</button>}
+          <div
+            className={`foto-picker ${S.tipo}`}
+            role="button"
+            tabIndex={0}
+            aria-label={S.foto ? 'Cambiar foto del inmueble' : 'Agregar foto al inmueble'}
+            onClick={() => { if (!subiendoFoto) fileRef.current?.click(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!subiendoFoto) fileRef.current?.click(); } }}
+          >
+            {S.foto ? <img src={urlImagen(S.foto)} alt="Foto del inmueble" /> : <Ilustra tipo={S.tipo} />}
+            <span className="foto-cap">{subiendoFoto ? 'Subiendo…' : S.foto ? 'Cambiar foto' : 'Agregar foto'}</span>
+            {S.foto && !subiendoFoto && (
+              <button
+                type="button"
+                className="foto-quitar"
+                aria-label="Quitar foto"
+                onClick={(e) => { e.stopPropagation(); setS({ ...S, foto: '' }); }}
+              >×</button>
+            )}
           </div>
           <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" style={{ display: 'none' }} onChange={elegirFoto} />
           <div className="row"><button className="g" disabled={env} onClick={guardar}>{env ? 'Guardando…' : 'Guardar inmueble'}</button></div>

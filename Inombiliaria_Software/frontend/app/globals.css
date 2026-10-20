@@ -179,8 +179,64 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 72px }
 .thumb.Apartamento { background: linear-gradient(180deg, #1b3558, #34628f) }
 .thumb svg { display: block; width: 100%; height: 100% }
 .thumb .foto-thumb { display: block; width: 100%; height: 100%; object-fit: cover }
-.thumb .tag { position: absolute; top: 14px; left: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, .18) }
 .thumb.grande { height: 240px; border-radius: 0 }
+
+/* Foto clicable: abre el selector de archivo (ficha y formulario) */
+.thumb.editable, .foto-picker {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden
+}
+.thumb.editable:focus-visible, .foto-picker:focus-visible { outline: 3px solid var(--ring); outline-offset: -3px }
+.thumb.editable .foto-thumb, .foto-picker img { transition: transform .3s ease, filter .3s ease }
+.thumb.editable:hover .foto-thumb, .foto-picker:hover img { transform: scale(1.03) }
+.foto-cap {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    background: rgba(12, 20, 18, .78);
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 99px;
+    opacity: 0;
+    transition: opacity .2s ease;
+    pointer-events: none;
+    white-space: nowrap
+}
+.thumb.editable:hover .foto-cap, .thumb.editable:focus-visible .foto-cap,
+.foto-picker:hover .foto-cap, .foto-picker:focus-visible .foto-cap { opacity: 1 }
+@media(hover:none) { .thumb.editable .foto-cap, .foto-picker .foto-cap { opacity: 1 } }
+
+/* Miniatura de foto en el formulario */
+.foto-picker {
+    height: 190px;
+    border-radius: 12px;
+    border: 1px solid var(--bd);
+    background: linear-gradient(180deg, #0e4a41, #1e7667)
+}
+.foto-picker.Apartamento { background: linear-gradient(180deg, #1b3558, #34628f) }
+.foto-picker img { display: block; width: 100%; height: 100%; object-fit: cover }
+.foto-picker svg { display: block; width: 100%; height: 100% }
+.foto-quitar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(12, 20, 18, .72);
+    color: #fff;
+    font-size: 1.2rem;
+    line-height: 1;
+    display: grid;
+    place-items: center
+}
+.foto-quitar:hover { background: var(--red); color: #fff; border: 0 }
 
 .info { padding: 18px 20px 20px; display: flex; flex-direction: column; flex: 1 }
 .nom { margin: 0 0 2px; font-size: 1.2rem; font-weight: 700 }
@@ -195,10 +251,15 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 72px }
     font-family: var(--f-display), sans-serif;
     font-size: 1.4rem;
     font-weight: 700;
-    letter-spacing: -.01em
+    letter-spacing: -.01em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap
 }
 .info .caract + .precio, .info .meta + .precio { margin-top: 16px }
 .precio small { margin-left: 2px; font-family: var(--f-body), sans-serif; font-size: .82rem; font-weight: 500; color: var(--mut) }
+.precio .tag.grande { margin-left: auto }
 .info > .precio { border-top: 0 }
 
 /* ---------- Etiquetas de estado ---------- */
@@ -216,6 +277,8 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 72px }
 .tag.Venta { background: var(--st-ven-bg); color: var(--st-ven-tx) }
 .tag.Vendida { background: var(--st-vdd-bg); color: var(--st-vdd-tx) }
 .tag.pulse { background: var(--amb); color: #2b1b00; animation: pulse 2.4s infinite }
+/* Etiqueta de estado grande, junto al costo (tarjeta de catálogo y ficha) */
+.tag.grande { font-size: .95rem; padding: 7px 16px; font-weight: 700 }
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 rgba(231, 164, 31, .55) }
     70% { box-shadow: 0 0 0 9px rgba(231, 164, 31, 0) }
@@ -257,7 +320,12 @@ button:disabled { opacity: .6; cursor: wait }
 .dato { background: var(--bg); border-radius: 12px; padding: 14px 16px }
 .dato span { display: block; color: var(--mut); font-size: .8rem }
 .dato b { font-family: var(--f-display), sans-serif; font-size: 1.2rem }
+/* El dato del precio lleva la etiqueta de estado grande al lado */
+.precio-dato { display: flex; flex-direction: column; align-items: flex-start; gap: 4px }
+.precio-dato .precio-val { font-size: 1.5rem; margin-bottom: 4px }
 .pdf { display: flex; gap: 14px; align-items: center; padding: 14px; border: 1px solid var(--bd); border-radius: 12px; margin-bottom: 10px }
+.pdf-info { flex: 1; min-width: 0 }
+.pdf-acciones { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end }
 .pdfico { flex: none; width: 42px; height: 52px; border-radius: 8px; display: grid; place-items: center; background: var(--ac); color: var(--onac); font-size: .7rem; font-weight: 700 }
 .vacio { text-align: center; color: var(--mut) }
 
@@ -324,8 +392,7 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 .hoja .sig div { border-top: 1px solid #222; padding-top: 6px; min-width: 150px; font-size: .85rem }
 
 /* ---------- Aviso ---------- */
-#toast {
-    position: fixed;
+#toast {    position: fixed;
     bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
@@ -338,6 +405,27 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
     display: block;
     animation: fade .25s ease
 }
+
+/* ---------- Cabecera de usuario (sesión) ---------- */
+.header-der { display: flex; align-items: center; gap: 18px }
+.usuario { display: flex; align-items: center; gap: 10px }
+.usuario img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--bd) }
+.usuario-nom { font-size: .9rem; font-weight: 600; color: var(--tx); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+@media(max-width:700px) { .header-der p { display: none } .usuario-nom { display: none } }
+
+/* ---------- Pantalla de inicio de sesión ---------- */
+.login-main { max-width: 1120px; margin: 0 auto; padding: 8vh 24px 72px; display: flex; justify-content: center }
+.login-card { width: min(430px, 100%); text-align: center; padding: 40px 34px 30px; margin: 0 }
+.login-marca { justify-content: center; margin-bottom: 18px }
+.login-marca h1 { color: var(--ac) }
+.login-t { margin: 0 0 8px; font-size: 1.7rem }
+.login-sub { margin: 0 auto 26px; max-width: 34ch }
+.login-btn { display: flex; justify-content: center; min-height: 44px; margin-bottom: 12px }
+.login-espera { margin: 0 }
+.login-error { margin-top: 8px; padding: 12px 14px; border-radius: 10px; background: var(--st-vdd-bg); color: var(--st-vdd-tx); font-weight: 600; font-size: .9rem }
+.login-pie { display: flex; gap: 10px 22px; justify-content: center; flex-wrap: wrap; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--bd); color: var(--mut); font-size: .86rem }
+.login-pie span { display: inline-flex; align-items: center; gap: 7px }
+.login-pie svg { color: var(--ac) }
 
 @media(prefers-reduced-motion:reduce) {
     * { animation: none !important; transition: none !important }

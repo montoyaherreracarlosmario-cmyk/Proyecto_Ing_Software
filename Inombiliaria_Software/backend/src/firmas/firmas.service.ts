@@ -144,6 +144,14 @@ export class FirmasService {
     return this.pactoPublico(acuerdo);
   }
 
+  // ¿El token corresponde a un firmante de este acuerdo? (para el PDF por enlace)
+  async tieneToken(id: string, token: string) {
+    if (!token) return false;
+    const acuerdo = await this.acuerdos.findById(id);
+    if (!acuerdo) return false;
+    return !!buscarPorToken(acuerdo, token);
+  }
+
   // ===== Firmar: valida el TURNO en servidor, registra evidencia y encadena hashes =====
   async firmar(token: string, { datos, metodo, imagen, condiciones, req }: any) {
     const acuerdo: any = await this.acuerdos.findOne({ 'firmantes.token': token });
