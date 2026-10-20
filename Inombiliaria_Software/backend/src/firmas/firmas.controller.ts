@@ -1,9 +1,11 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { FirmasService } from './firmas.service';
+import { AuthService } from '../auth/auth.service';
+import { Public } from '../auth/public.decorator';
 
 @Controller('api/firmas')
 export class FirmasController {
-  constructor(private readonly svc: FirmasService) {}
+  constructor(private readonly svc: FirmasService, private readonly auth: AuthService) {}
 
   // Crear acuerdo (desde el formulario de contrato del frontend)
   @Post('acuerdos')
@@ -20,12 +22,15 @@ export class FirmasController {
   }
 
   // Datos públicos para la pantalla de firma (contrato, turno, rol)
+  // Público: el firmante externo llega por enlace privado, sin sesión de administrador.
+  @Public()
   @Get('t/:token')
   porToken(@Param('token') token: string) {
     return this.svc.obtenerPorToken(token);
   }
 
   // Registrar firma (valida el turno en el servidor)
+  @Public()
   @Post('t/:token/firmar')
   @HttpCode(200)
   firmar(@Param('token') token: string, @Body() body: any, @Req() req: any) {
@@ -33,6 +38,7 @@ export class FirmasController {
   }
 
   // Rechazo del administrativo con observaciones
+  @Public()
   @Post('t/:token/rechazar')
   @HttpCode(200)
   rechazar(@Param('token') token: string, @Body() body: any, @Req() req: any) {
@@ -45,9 +51,17 @@ export class FirmasController {
     return this.svc.verificar(id);
   }
 
-  // PDF final (contrato + firmas + anexo de evidencia)
+  // PDF final (contrato + firmas + anexo de evidencia).
+  // Se descarga desde un <a href>, que no puede mandar cabecera Authorization:
+  // se acepta ?token= bien sea la sesión del administrador o el token del firmante.
+  @Public()
   @Get('acuerdos/:id/pdf')
-  async pdf(@Param('id') id: string, @Res() res: any) {
+  async pdf(@Param('id') id: string, @Query('token') token: string, @Req() req: any, @Res() res: any) {
+    const esAdmin = !!(await this.auth.usuarioDe(req));
+    const esFirmante = token ? await this.svc.tieneToken(id, token) : false;
+    if (!esAdmin && !esFirmante) {
+      return res.status(401).json({ error: 'Debes iniciar sesión' });
+    }
     const buffer = await this.svc.pdfDe(id);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="contrato-${id}.pdf"`);
