@@ -49,6 +49,7 @@ export default function Login({ onEntrar }) {
 
   return (
     <main className="login-main">
+      <div className="login-fondo" aria-hidden="true" />
       <div className="card login-card">
         <div className="marca login-marca"><Logo /><h1>Habitat Capital</h1></div>
         <h2 className="login-t">Inicia sesión</h2>

@@ -414,8 +414,32 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 @media(max-width:700px) { .header-der p { display: none } .usuario-nom { display: none } }
 
 /* ---------- Pantalla de inicio de sesión ---------- */
-.login-main { max-width: 1120px; margin: 0 auto; padding: 8vh 24px 72px; display: flex; justify-content: center }
-.login-card { width: min(430px, 100%); text-align: center; padding: 40px 34px 30px; margin: 0 }
+.login-main { position: relative; min-height: 100vh; max-width: none; margin: 0; padding: 8vh 24px 72px; display: flex; justify-content: center; align-items: center }
+
+/* Fondo corporativo sutil: navy + gris oscuro con sombras arquitectónicas y reflejos de cristal (16:9, minimalista) */
+.login-fondo {
+    position: fixed; inset: 0; z-index: -1; overflow: hidden;
+    background:
+        radial-gradient(120% 90% at 15% 8%, rgba(46, 68, 110, .55), transparent 55%),
+        radial-gradient(100% 80% at 88% 92%, rgba(30, 44, 74, .5), transparent 60%),
+        linear-gradient(135deg, #0b1f3a 0%, #101826 52%, #1c2330 100%);
+}
+/* Sombras geométricas arquitectónicas */
+.login-fondo::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+        conic-gradient(from 210deg at 78% 22%, rgba(255,255,255,.06), transparent 22%),
+        linear-gradient(115deg, transparent 62%, rgba(255,255,255,.05) 62.4%, transparent 63%),
+        linear-gradient(105deg, transparent 74%, rgba(255,255,255,.04) 74.3%, transparent 75%);
+}
+/* Reflejos de cristal diagonales */
+.login-fondo::after {
+    content: ""; position: absolute; inset: -20% -10%;
+    background: linear-gradient(72deg, transparent 40%, rgba(180, 210, 255, .07) 47%, transparent 54%),
+                linear-gradient(72deg, transparent 58%, rgba(180, 210, 255, .05) 62%, transparent 66%);
+    mix-blend-mode: screen;
+}
+.login-card { position: relative; z-index: 1; width: min(430px, 100%); text-align: center; padding: 40px 34px 30px; margin: 0; box-shadow: var(--sh2) }
 .login-marca { justify-content: center; margin-bottom: 18px }
 .login-marca h1 { color: var(--ac) }
 .login-t { margin: 0 0 8px; font-size: 1.7rem }
