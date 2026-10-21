@@ -552,7 +552,7 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 
 
 /* =====================================================================
-   REDISEÑO — más profesional, con color y movimiento
+   REDISEÑO — paleta azul real + cian + ámbar, y movimiento "respirado"
    Va al final a propósito: sobrescribe reglas anteriores sin cambiar sus
    nombres de clase. Todo el movimiento se apaga con prefers-reduced-motion
    (regla general más arriba), así que es seguro para quien lo necesite.
@@ -560,34 +560,64 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 
 /* ---------- Paleta ---------- */
 :root {
-    --bg: #f1f5f3;
-    --grad: linear-gradient(135deg, #0c4037 0%, #12665a 55%, #1f8c78 100%);
-    --grad-amb: linear-gradient(135deg, #f6bb43 0%, #e8921b 100%);
-    --glow: rgba(15, 76, 67, .38);
-    --ease: cubic-bezier(.2, .8, .2, 1);
-    --rebote: cubic-bezier(.3, 1.5, .5, 1);
+    --bg: #edf2fc;
+    --card: #ffffff;
+    --tx: #0e1a3d;
+    --mut: #56668d;
+    --bd: #d6def0;
+    --ac: #1d4ed8;
+    --ac2: #2f6dff;
+    --onac: #ffffff;
+    --amb: #f5a524;
+    --red: #d92d4a;
+    --st-sin-bg: #e2e8f7;  --st-sin-tx: #293e7a;
+    --st-arr-bg: #cff3e3;  --st-arr-tx: #0a6945;
+    --st-ven-bg: #fde6bd;  --st-ven-tx: #7a4500;
+    --st-vdd-bg: #e9defb;  --st-vdd-tx: #54299c;
+    --st-pv-bg: #ffdccf;   --st-pv-tx: #a02f0b;
+    --sh: 0 1px 2px rgba(18, 38, 105, .07), 0 8px 24px rgba(18, 38, 105, .08);
+    --sh2: 0 2px 4px rgba(18, 38, 105, .10), 0 18px 40px rgba(18, 38, 105, .16);
+    --ring: rgba(37, 99, 235, .26);
+    --grad: linear-gradient(135deg, #1a3cb8 0%, #2563eb 55%, #17a6df 100%);
+    --grad-amb: linear-gradient(135deg, #ffbc3b 0%, #f08a0c 100%);
+    --glow: rgba(37, 99, 235, .45);
+    --suave: cubic-bezier(.37, 0, .63, 1);     /* ritmo de respiración: entra y sale despacio */
+    --ease: cubic-bezier(.22, .61, .36, 1);
+    --rebote: cubic-bezier(.34, 1.25, .5, 1);
+    --resp: 4s;                                 /* duración de un "respiro" completo */
 }
 @media (prefers-color-scheme:dark) {
     :root:not([data-theme="light"]) {
-        --grad: linear-gradient(135deg, #29a38d 0%, #4fc3ad 60%, #86e0cd 100%);
-        --glow: rgba(79, 195, 173, .38);
+        --bg: #0a1022; --card: #121a34; --tx: #e8edfb; --mut: #94a1c6; --bd: #243055;
+        --ac: #6ea2ff; --ac2: #8fb9ff; --onac: #07122e; --red: #ff8a9b;
+        --st-sin-bg: #1f2d54; --st-sin-tx: #c5d3f5;
+        --st-arr-bg: #123d2d; --st-arr-tx: #b4f0d4;
+        --st-ven-bg: #4d3a10; --st-ven-tx: #fbe0a2;
+        --st-vdd-bg: #33295a; --st-vdd-tx: #d9cdf8;
+        --st-pv-bg: #4d2418;  --st-pv-tx: #ffc9b5;
+        --sh: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .32);
+        --sh2: 0 2px 4px rgba(0, 0, 0, .5), 0 18px 40px rgba(0, 0, 0, .5);
+        --ring: rgba(110, 162, 255, .32);
+        --grad: linear-gradient(135deg, #3b74f0 0%, #5b9bff 55%, #4fd0f0 100%);
+        --glow: rgba(110, 162, 255, .45);
     }
 }
 /* El botón de tema pone data-theme="dark" aunque el sistema esté en claro:
    este bloque hace que ese modo oscuro funcione siempre. */
 :root[data-theme="dark"] {
     color-scheme: dark;
-    --bg: #0c1412; --card: #131f1c; --tx: #e8f0ed; --mut: #92a59f; --bd: #25352f;
-    --ac: #4fc3ad; --ac2: #6fd6c2; --onac: #06201b; --red: #ff8787;
-    --st-sin-bg: #22324d; --st-sin-tx: #c3d3f0;
-    --st-arr-bg: #17402c; --st-arr-tx: #b6ecc9;
+    --bg: #0a1022; --card: #121a34; --tx: #e8edfb; --mut: #94a1c6; --bd: #243055;
+    --ac: #6ea2ff; --ac2: #8fb9ff; --onac: #07122e; --red: #ff8a9b;
+    --st-sin-bg: #1f2d54; --st-sin-tx: #c5d3f5;
+    --st-arr-bg: #123d2d; --st-arr-tx: #b4f0d4;
     --st-ven-bg: #4d3a10; --st-ven-tx: #fbe0a2;
-    --st-vdd-bg: #3a2b57; --st-vdd-tx: #dccdf5;
-    --sh: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .3);
-    --sh2: 0 2px 4px rgba(0, 0, 0, .5), 0 16px 36px rgba(0, 0, 0, .45);
-    --ring: rgba(79, 195, 173, .3);
-    --grad: linear-gradient(135deg, #29a38d 0%, #4fc3ad 60%, #86e0cd 100%);
-    --glow: rgba(79, 195, 173, .38);
+    --st-vdd-bg: #33295a; --st-vdd-tx: #d9cdf8;
+    --st-pv-bg: #4d2418;  --st-pv-tx: #ffc9b5;
+    --sh: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .32);
+    --sh2: 0 2px 4px rgba(0, 0, 0, .5), 0 18px 40px rgba(0, 0, 0, .5);
+    --ring: rgba(110, 162, 255, .32);
+    --grad: linear-gradient(135deg, #3b74f0 0%, #5b9bff 55%, #4fd0f0 100%);
+    --glow: rgba(110, 162, 255, .45);
 }
 
 html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 100px) }
@@ -595,20 +625,30 @@ body {
     min-height: 100vh;
     background:
         radial-gradient(900px 520px at 92% -8%, color-mix(in srgb, var(--amb) 14%, transparent), transparent 62%),
-        radial-gradient(860px 560px at -8% 4%, color-mix(in srgb, var(--ac2) 16%, transparent), transparent 60%),
+        radial-gradient(900px 600px at -8% 2%, color-mix(in srgb, var(--ac2) 18%, transparent), transparent 60%),
         var(--bg);
 }
 ::selection { background: color-mix(in srgb, var(--ac2) 35%, transparent) }
 
-/* ---------- Animaciones base ---------- */
-@keyframes subir { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
-@keyframes aparecer { from { opacity: 0; transform: scale(.96) } to { opacity: 1; transform: none } }
+/* ---------- Animaciones base (lentas, como una respiración) ---------- */
+@keyframes subir { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
 @keyframes brillo { 0% { background-position: 0% 50% } 100% { background-position: 200% 50% } }
 @keyframes aurora { 0%, 100% { background-position: 0% 50% } 50% { background-position: 100% 50% } }
-@keyframes flotar { 0%, 100% { transform: translate(0, 0) } 50% { transform: translate(-18px, 14px) } }
-@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 26px) scale(.92) } to { opacity: 1; transform: translate(-50%, 0) } }
+@keyframes flotar { 0%, 100% { transform: translate(0, 0) } 50% { transform: translate(-22px, 16px) } }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 28px) scale(.94) } to { opacity: 1; transform: translate(-50%, 0) } }
+/* Respiro: se infla y se desinfla despacio (usa la propiedad "scale", independiente de "transform") */
+@keyframes respirar { 0%, 100% { scale: 1 } 50% { scale: 1.04 } }
+@keyframes aura {
+    0%, 100% { box-shadow: 0 0 0 3px var(--ring), 0 12px 24px -12px var(--glow) }
+    50% { box-shadow: 0 0 0 9px transparent, 0 20px 38px -12px var(--glow) }
+}
+@keyframes barrido { 0% { left: -90% } 55%, 100% { left: 140% } }
+@keyframes aliento-tag {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-pv-tx) 38%, transparent); scale: 1 }
+    50% { box-shadow: 0 0 0 7px transparent; scale: 1.06 }
+}
 
-.view { animation: subir .55s var(--ease) both }
+.view { animation: subir .9s var(--ease) both }
 
 /* ---------- Cabecera: título centrado y más grande ---------- */
 header {
@@ -620,16 +660,16 @@ header {
     -webkit-backdrop-filter: saturate(1.5) blur(14px);
     backdrop-filter: saturate(1.5) blur(14px);
     border-bottom: 1px solid color-mix(in srgb, var(--bd) 80%, transparent);
-    box-shadow: 0 12px 30px -22px rgba(15, 40, 35, .45)
+    box-shadow: 0 12px 30px -22px rgba(18, 38, 105, .5)
 }
 header .marca { grid-column: 2; grid-row: 1; justify-self: center; gap: 14px; cursor: default }
 header .header-der { grid-column: 3; grid-row: 1; justify-self: end }
 header .marca svg {
     width: 46px; height: 46px; border-radius: 12px;
     box-shadow: 0 6px 16px -6px var(--glow);
-    transition: transform .45s var(--rebote), box-shadow .3s
+    transition: transform .8s var(--suave), box-shadow .6s var(--suave)
 }
-header .marca:hover svg { transform: rotate(-9deg) scale(1.1); box-shadow: 0 10px 22px -6px var(--glow) }
+header .marca:hover svg { transform: rotate(-8deg) scale(1.1); box-shadow: 0 12px 26px -6px var(--glow) }
 header h1 {
     font-size: clamp(1.5rem, 2.4vw, 2rem);
     font-weight: 800;
@@ -638,7 +678,7 @@ header h1 {
     background-size: 200% auto;
     -webkit-background-clip: text; background-clip: text;
     color: transparent; -webkit-text-fill-color: transparent;
-    animation: brillo 9s linear infinite
+    animation: brillo 18s linear infinite
 }
 @media(max-width:900px) { header .header-der p { display: none } }
 @media(max-width:600px) {
@@ -650,112 +690,143 @@ header h1 {
 
 main { max-width: 1160px; padding: 36px 28px 88px }
 
-/* ---------- Botones: movimiento y color ---------- */
+/* ---------- Botones: respiran y se resaltan bajo el cursor ---------- */
 button {
     border-radius: 12px;
     padding: 11px 20px;
-    transition: transform .22s var(--rebote), box-shadow .25s, background .2s, border-color .2s, color .2s, filter .2s
+    transition: transform .8s var(--suave), box-shadow .7s var(--suave), background .5s var(--suave),
+                border-color .5s var(--suave), color .5s var(--suave), filter .6s var(--suave), opacity .6s var(--suave)
 }
-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px -10px var(--glow) }
-button:active:not(:disabled) { transform: translateY(0) scale(.95); box-shadow: none; transition-duration: .08s }
+/* Botón bajo el cursor: se infla, se ilumina y "respira" mientras el cursor siga encima */
+button:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.06);
+    filter: brightness(1.08) saturate(1.15);
+    box-shadow: 0 0 0 4px var(--ring), 0 16px 30px -12px var(--glow);
+    animation: respirar var(--resp) var(--suave) infinite, aura var(--resp) var(--suave) infinite
+}
+button:active:not(:disabled) { transform: translateY(0) scale(.96); box-shadow: none; animation: none; transition-duration: .15s }
+/* Los botones normales (con borde) se tiñen de azul al resaltarse */
+button:not(.g):not(.o):not(.l):not(.chip):not(.dd-btn):not(.tema-btn):not(.foto-quitar):not([role="tab"]):not(.on):hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ac) 10%, var(--card));
+    border-color: var(--ac); color: var(--ac)
+}
+/* Si hay varios botones juntos, los demás se apagan un poco para que destaque el que tiene el cursor */
+.row:has(> button:hover:not(:disabled)) > button:not(:hover) { opacity: .72; filter: saturate(.75) }
 
 button.g, button.o { position: relative; overflow: hidden; border-color: transparent }
 button.g { background: var(--grad); color: var(--onac) }
-button.g:hover { background: var(--grad); border-color: transparent; filter: brightness(1.1); box-shadow: 0 12px 24px -10px var(--glow) }
-button.o { background: var(--grad-amb); color: #2b1b00 }
-button.o:hover { background: var(--grad-amb); border-color: transparent; filter: brightness(1.06); box-shadow: 0 12px 24px -10px rgba(231, 164, 31, .6) }
-/* Destello que cruza el botón al pasar el mouse */
+button.g:hover:not(:disabled) { background: var(--grad); border-color: transparent; color: var(--onac) }
+button.o { background: var(--grad-amb); color: #2b1b00; --ring: rgba(245, 165, 36, .34); --glow: rgba(240, 138, 12, .65) }
+button.o:hover:not(:disabled) { background: var(--grad-amb); border-color: transparent; color: #2b1b00 }
+/* Destello que cruza el botón; mientras el cursor sigue encima se repite con calma */
 button.g::after, button.o::after {
     content: ""; position: absolute; top: 0; left: -90%; width: 55%; height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .4), transparent);
-    transform: skewX(-22deg); pointer-events: none; transition: left .65s var(--ease)
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .42), transparent);
+    transform: skewX(-22deg); pointer-events: none
 }
-button.g:hover::after, button.o:hover::after { left: 140% }
+button.g:hover::after, button.o:hover::after { animation: barrido var(--resp) var(--suave) infinite }
 
-/* Botones que NO deben levantarse (pestañas, selectores, textos) */
-.tabs button:hover, .modo button:hover, .chip:hover, .dd-btn:hover, button.l:hover,
-.fm-tabs button:hover, .tema-btn:hover { box-shadow: none }
-.tabs button:hover:not(:disabled), .modo button:hover:not(:disabled), .dd-btn:hover:not(:disabled) { transform: none }
-button.l:hover:not(:disabled) { transform: translateX(-3px) }   /* "← Volver" se desliza hacia atrás */
+/* Botones que NO se inflan (pestañas, selectores, textos, iconos) */
+.tabs button:hover, .modo button:hover, button.dd-btn:hover, button.l:hover, button.tema-btn:hover, button.foto-quitar:hover, .fm-tabs button:hover {
+    animation: none; box-shadow: none; filter: none
+}
+.tabs button:hover:not(:disabled), .modo button:hover:not(:disabled), button.dd-btn:hover:not(:disabled) { transform: none }
+button.l:hover:not(:disabled) { transform: translateX(-4px) }          /* "← Volver" se desliza hacia atrás */
+button.tema-btn:hover:not(:disabled) { transform: rotate(-14deg) scale(1.08) }
 .modo button.on, .fm-tabs button.on { background: var(--grad); border-color: transparent }
-.modo button { transition: background .25s, color .25s }
-.chip.on { background: var(--grad); border-color: transparent }
-.pill { background: var(--grad); box-shadow: 0 8px 16px -8px var(--glow) }
+.modo button { transition: background .5s var(--suave), color .5s var(--suave) }
+.chip.on { background: var(--grad); border-color: transparent; box-shadow: 0 5px 14px -5px var(--glow) }
+.pill { background: var(--grad); box-shadow: 0 8px 16px -8px var(--glow); transition: transform .7s var(--suave) }
 .btn-pdf { background: var(--grad); border-color: transparent }
 
 /* ---------- Tarjetas ---------- */
-.card { border-radius: 20px; padding: 28px; margin-bottom: 24px }
+.card { border-radius: 20px; margin-bottom: 24px }
+.card:not(.item):not(.ficha) { padding: 28px }   /* las tarjetas de inmueble y la ficha llevan la foto a sangre (padding 0) */
 .lista { gap: 26px }
-.lista > * { animation: subir .6s var(--ease) backwards }   /* "backwards": no bloquea el hover */
-.lista > :nth-child(1) { animation-delay: .04s }  .lista > :nth-child(2) { animation-delay: .10s }
-.lista > :nth-child(3) { animation-delay: .16s }  .lista > :nth-child(4) { animation-delay: .22s }
-.lista > :nth-child(5) { animation-delay: .28s }  .lista > :nth-child(6) { animation-delay: .34s }
-.lista > :nth-child(7) { animation-delay: .40s }  .lista > :nth-child(8) { animation-delay: .46s }
-.lista > :nth-child(n+9) { animation-delay: .52s }
+.lista > * { animation: subir .9s var(--ease) backwards }   /* "backwards": no bloquea el hover */
+.lista > :nth-child(1) { animation-delay: .05s }  .lista > :nth-child(2) { animation-delay: .15s }
+.lista > :nth-child(3) { animation-delay: .25s }  .lista > :nth-child(4) { animation-delay: .35s }
+.lista > :nth-child(5) { animation-delay: .45s }  .lista > :nth-child(6) { animation-delay: .55s }
+.lista > :nth-child(7) { animation-delay: .65s }  .lista > :nth-child(8) { animation-delay: .75s }
+.lista > :nth-child(n+9) { animation-delay: .85s }
 
-.item { border-radius: 22px; transition: transform .35s var(--rebote), box-shadow .3s, border-color .3s }
-.item:hover:not(.estatica) { transform: translateY(-8px); box-shadow: 0 22px 44px -18px var(--glow), var(--sh2) }
-.item:active:not(.estatica) { transform: translateY(-3px) scale(.99) }
-.item .thumb > svg, .item .foto-thumb { transition: transform .6s var(--ease) }
-.item:hover .thumb > svg, .item:hover .foto-thumb { transform: scale(1.07) }
-.item .tag.grande { transition: transform .3s var(--rebote) }
+.item { border-radius: 22px; transition: transform .7s var(--suave), box-shadow .7s var(--suave), border-color .5s var(--suave) }
+.item:hover:not(.estatica) { transform: translateY(-8px); box-shadow: 0 24px 46px -18px var(--glow), var(--sh2) }
+.item:active:not(.estatica) { transform: translateY(-3px) scale(.99); transition-duration: .2s }
+.item .thumb > svg, .item .foto-thumb { transition: transform 1.4s var(--ease) }
+.item:hover .thumb > svg, .item:hover .foto-thumb { transform: scale(1.08) }
+.item .tag.grande { transition: transform .8s var(--suave) }
 .item:hover .tag.grande { transform: scale(1.08) }
-.nom { transition: color .25s }
+.nom { transition: color .6s var(--suave) }
 .item:hover .nom { color: var(--ac) }
 
-/* ---------- Portada con movimiento ---------- */
+/* Fotos y fondos de las tarjetas con la nueva paleta */
+.thumb, .foto-picker { background: linear-gradient(180deg, #123c9c, #2f78e6) }
+.thumb.Apartamento, .foto-picker.Apartamento { background: linear-gradient(180deg, #2b2a8c, #6a63e6) }
+
+/* ---------- Portada con movimiento lento ---------- */
 .portada {
     border-radius: 28px;
     padding: 46px 46px 40px;
-    background: linear-gradient(125deg, #0a332d 0%, #0f4c43 38%, #1b7a69 70%, #0e4a41 100%);
+    background: linear-gradient(125deg, #0b1747 0%, #12308f 36%, #1f5bdc 70%, #0f2f86 100%);
     background-size: 220% 220%;
-    animation: aurora 18s ease-in-out infinite, subir .7s var(--ease) both;
-    box-shadow: 0 30px 60px -32px rgba(10, 51, 45, .75)
+    animation: aurora 34s ease-in-out infinite, subir 1s var(--ease) both;
+    box-shadow: 0 30px 60px -32px rgba(11, 23, 71, .85)
 }
 .portada::before {
-    content: ""; position: absolute; right: -70px; top: -130px; width: 360px; height: 360px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(231, 164, 31, .42), transparent 66%);
-    animation: flotar 11s ease-in-out infinite; pointer-events: none
+    content: ""; position: absolute; right: -70px; top: -130px; width: 380px; height: 380px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(245, 165, 36, .45), transparent 66%);
+    animation: flotar 22s ease-in-out infinite; pointer-events: none
 }
-.skyline { animation: flotar 14s ease-in-out infinite reverse }
-.portada h2 { animation: subir .7s var(--ease) .1s backwards }
-.portada > p { animation: subir .7s var(--ease) .2s backwards }
-.stats > div { animation: subir .7s var(--ease) backwards; transition: transform .3s var(--rebote) }
-.stats > div:nth-child(1) { animation-delay: .30s } .stats > div:nth-child(2) { animation-delay: .38s }
-.stats > div:nth-child(3) { animation-delay: .46s } .stats > div:nth-child(4) { animation-delay: .54s }
-.stats > div:hover { transform: translateY(-4px) scale(1.05) }
-.stats dd { background: linear-gradient(180deg, #fff, #bff0e4); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent }
+.portada::after {
+    content: ""; position: absolute; left: -90px; bottom: -150px; width: 360px; height: 360px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(34, 190, 240, .4), transparent 66%);
+    animation: flotar 26s ease-in-out infinite reverse; pointer-events: none
+}
+.skyline { color: #c4dbff; animation: flotar 28s ease-in-out infinite reverse }
+.portada h2 { animation: subir 1s var(--ease) .15s backwards }
+.portada > p { animation: subir 1s var(--ease) .3s backwards }
+.stats > div { animation: subir 1s var(--ease) backwards; transition: transform .8s var(--suave) }
+.stats > div:nth-child(1) { animation-delay: .45s } .stats > div:nth-child(2) { animation-delay: .6s }
+.stats > div:nth-child(3) { animation-delay: .75s } .stats > div:nth-child(4) { animation-delay: .9s }
+.stats > div:hover { transform: translateY(-4px) scale(1.06) }
+.stats dd { background: linear-gradient(180deg, #fff, #cfe4ff); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent }
 @media(max-width:700px) { .portada { padding: 30px 22px 26px } }
 
 /* ---------- Pestañas, datos, contratos ---------- */
 .tabs { border-radius: 16px; padding: 6px; box-shadow: var(--sh) }
-.tabs button { padding: 12px 16px; transition: color .25s }
+.tabs button { padding: 12px 16px; transition: color .6s var(--suave) }
 .tabs button:hover:not(.on) { color: var(--ac) }
-.dato { border-radius: 14px; transition: transform .25s var(--rebote), box-shadow .25s }
+.dato { border-radius: 14px; transition: transform .7s var(--suave), box-shadow .7s var(--suave) }
 .dato:hover { transform: translateY(-3px); box-shadow: var(--sh) }
-.pdf { transition: transform .25s var(--rebote), border-color .2s, box-shadow .25s }
-.pdf:hover { transform: translateX(4px); border-color: var(--ac); box-shadow: var(--sh) }
-.pdfico { background: var(--grad); transition: transform .3s var(--rebote) }
-.pdf:hover .pdfico { transform: rotate(-6deg) scale(1.08) }
+.pdf { transition: transform .7s var(--suave), border-color .5s, box-shadow .7s var(--suave) }
+.pdf:hover { transform: translateX(5px); border-color: var(--ac); box-shadow: var(--sh) }
+.pdfico { background: var(--grad); transition: transform .8s var(--suave) }
+.pdf:hover .pdfico { transform: rotate(-6deg) scale(1.1) }
 h3 { position: relative }
 .ficha-body h3 { padding-left: 14px }
 .ficha-body h3::before { content: ""; position: absolute; left: 0; top: 14%; bottom: 14%; width: 4px; border-radius: 4px; background: var(--grad-amb) }
 
+/* ---------- Estado extra: "Por vencer" (se calcula, no se guarda) ---------- */
+.tag { transition: transform .8s var(--suave) }
+.tag.PorVencer { background: var(--st-pv-bg); color: var(--st-pv-tx); animation: aliento-tag var(--resp) var(--suave) infinite }
+.meta .tag { margin-left: 10px; vertical-align: middle }
+.tag.pulse { animation-duration: 4s }
+
 /* ---------- Formularios ---------- */
-input, textarea, select { border-radius: 12px; transition: border-color .2s, box-shadow .25s, background .2s, transform .2s }
+input, textarea, select { border-radius: 12px; transition: border-color .5s var(--suave), box-shadow .6s var(--suave), background .5s, transform .6s var(--suave) }
 input:hover, textarea:hover, select:hover { border-color: color-mix(in srgb, var(--ac) 55%, var(--bd)) }
 input:focus, textarea:focus, select:focus { background: var(--card); transform: translateY(-1px) }
-label { transition: color .2s }
-.chip { transition: border-color .18s, background .2s, color .18s, box-shadow .2s, transform .25s var(--rebote) }
-.chip:hover { transform: translateY(-2px) scale(1.04) }
+label { transition: color .5s }
+.chip { transition: border-color .5s var(--suave), background .5s var(--suave), color .5s var(--suave), box-shadow .6s var(--suave), transform .8s var(--suave) }
 
 /* ---------- Enlaces de firma (uno al lado del otro) ---------- */
 .enlaces { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-top: 16px }
 .enlace {
     display: flex; flex-direction: column; gap: 10px; min-width: 0;
     padding: 16px; border-radius: 16px; background: var(--bg); border: 1px solid var(--bd);
-    animation: subir .55s var(--ease) backwards; animation-delay: calc(var(--n, 0) * 110ms + 80ms);
-    transition: transform .3s var(--rebote), box-shadow .3s, border-color .3s
+    animation: subir .9s var(--ease) backwards; animation-delay: calc(var(--n, 0) * 150ms + 100ms);
+    transition: transform .7s var(--suave), box-shadow .7s var(--suave), border-color .5s
 }
 .enlace:hover { transform: translateY(-5px); box-shadow: 0 18px 32px -18px var(--glow); border-color: var(--ac) }
 .enlace-rol { display: flex; align-items: center; gap: 10px; font-weight: 700; text-transform: capitalize }
@@ -767,11 +838,11 @@ label { transition: color .2s }
 .enlace button { align-self: flex-start }
 
 /* ---------- Aviso ---------- */
-#toast { animation: toast-in .5s var(--rebote); background: var(--grad); border-radius: 14px; padding: 13px 24px }
+#toast { animation: toast-in .9s var(--rebote); background: var(--grad); border-radius: 14px; padding: 13px 24px }
 
 /* ---------- Pantalla de firma ---------- */
-.fm-main > * { animation: subir .55s var(--ease) backwards }
-.fm-tabs button { transition: transform .25s var(--rebote), background .2s, border-color .2s }
+.fm-main > * { animation: subir .9s var(--ease) backwards }
+.fm-tabs button { transition: transform .7s var(--suave), background .5s, border-color .5s }
 .fm-tabs button:hover:not(.on) { transform: translateY(-3px) }
 
 /* La regla general de reduced-motion (más arriba) también cubre todo lo anterior */

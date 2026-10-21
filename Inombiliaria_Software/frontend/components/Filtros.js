@@ -6,7 +6,7 @@ import { IcoBuscar } from './Iconos';
 
 const MIN = [['', 'Cualquiera'], ['1', '1+'], ['2', '2+'], ['3', '3+'], ['4', '4+'], ['5', '5+']];
 
-const ESTADOS = [['', 'Todos'], ['Arrendada', 'Arrendada'], ['Sin arrendar', 'Sin arrendar'], ['Para la venta', 'Para la venta'], ['Vendida', 'Vendida']];
+const ESTADOS = [['', 'Todos'], ['Arrendada', 'Arrendada'], ['Por vencer', 'Por vencer'], ['Sin arrendar', 'Sin arrendar'], ['Para la venta', 'Para la venta'], ['Vendida', 'Vendida']];
 
 // Selector desplegable: un botón que, al pulsarlo, despliega las opciones como píldoras.
 function Desplegable({ valor, opciones, onChange, etiqueta, otro = false }) {
