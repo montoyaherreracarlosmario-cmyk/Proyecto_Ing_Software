@@ -105,7 +105,10 @@ export async function generarPdf(acuerdo: any) {
   est.y -= 30;
   const filas: any[][] = [];
   let fila: any[] = [];
-  for (const f of acuerdo.firmantes) {
+  // Arriendo: tras arrendador y arrendatario aparecen los codeudores (si los hay); no firman por enlace
+  const cods = acuerdo.tipo === 'arriendo' ? (acuerdo.datos?.cods || []).filter(Boolean) : [];
+  const bloque = [...acuerdo.firmantes, ...cods.map((c: string) => ({ rol: 'Codeudor', nombre: c, sinFirma: true }))];
+  for (const f of bloque) {
     fila.push(f);
     if (fila.length === 2) { filas.push(fila); fila = []; }
   }
@@ -133,7 +136,7 @@ export async function generarPdf(acuerdo: any) {
       const nombre = f.datos?.nombre || f.nombre || '____________________';
       const nombreL = envolver(nombre, helv, 9.5, anchoCol)[0] || nombre;
       est.pag.drawText(nombreL, { x, y: est.y - 14, size: 9.5, font: helv, color: NEGRO });
-      const rolTxt = `${f.rol}${f.estado === 'firmada' ? '' : ' (pendiente)'}`;
+      const rolTxt = f.sinFirma ? f.rol : `${f.rol}${f.estado === 'firmada' ? '' : ' (pendiente)'}`;
       est.pag.drawText(rolTxt, { x, y: est.y - 26, size: 8.5, font: italica, color: GRIS });
       if (f.evidencia) {
         est.pag.drawText(`${METODOS[f.evidencia.metodo] || f.evidencia.metodo}`, { x, y: est.y - 38, size: 7.5, font: italica, color: GRIS });

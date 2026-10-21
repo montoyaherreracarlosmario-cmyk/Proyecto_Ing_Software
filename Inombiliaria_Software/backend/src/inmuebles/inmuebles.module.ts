@@ -8,5 +8,6 @@ import { Inmueble, InmuebleSchema } from './inmueble.schema';
   imports: [MongooseModule.forFeature([{ name: Inmueble.name, schema: InmuebleSchema }])],
   controllers: [InmueblesController],
   providers: [InmueblesService],
+  exports: [InmueblesService],
 })
 export class InmueblesModule {}
