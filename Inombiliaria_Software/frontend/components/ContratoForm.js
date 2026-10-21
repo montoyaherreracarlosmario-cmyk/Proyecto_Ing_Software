@@ -1,12 +1,13 @@
 'use client';
 import { useState } from 'react';
 import Hoja from './Hoja';
-import { crearAcuerdo } from '../lib/apiFirmas';
+import { crearAcuerdo, descargarPdfBorrador } from '../lib/apiFirmas';
 
 export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) {
   const [modo, setModo] = useState(modo0);
   const [links, setLinks] = useState([]);
   const [creando, setCreando] = useState(false);
+  const [descargando, setDescargando] = useState(false);
   const [S, setS] = useState({ arr: 'Inmobiliaria', ate: '', vend: '', comp: '', ciu: 'Ibagué', dir: inm.dir || '', bar: inm.barrio || '', lin: inm.lind || '', val: inm.valor || '', dur: 12, dia: 5, pago: 'De contado', cods: [''] });
   const set = (k) => (e) => setS({ ...S, [k]: e.target.value });
   // OJO: es una función (no un componente) para que el input no pierda el foco al escribir
@@ -25,6 +26,17 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
       avisar('Enlaces de firma generados (comprador → vendedor → administrador)');
     } catch { avisar('No se pudo crear el acuerdo de firma'); }
     setCreando(false);
+  };
+
+  // Descarga directa del PDF del borrador (generado en el servidor, sin firmas)
+  const descargar = async () => {
+    setDescargando(true);
+    try {
+      await descargarPdfBorrador(modo, S);
+    } catch (e) {
+      avisar(e.message || 'No se pudo descargar el PDF');
+    }
+    setDescargando(false);
   };
 
   return (
@@ -52,7 +64,8 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
           <Hoja modo={modo} S={S} />
           <div className="row noprint" style={{ justifyContent: 'center' }}>
             <button className="g" onClick={enviar} disabled={creando}>{creando ? 'Generando…' : 'Enviar link para firma'}</button>
-            <button onClick={() => window.print()}>Descargar PDF</button>
+            <button type="button" onClick={() => window.print()}>Imprimir</button>
+            <button type="button" onClick={descargar} disabled={descargando}>{descargando ? 'Generando PDF…' : 'Descargar PDF'}</button>
           </div>
           {links.length > 0 && (
             <div className="card view noprint">

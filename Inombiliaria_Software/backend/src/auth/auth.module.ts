@@ -5,7 +5,8 @@ import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { NOMBRE_SESION, NOMBRE_USUARIO, SesionSchema, UsuarioSchema } from './model';
 
-// Global: el AuthService y el AuthGuard se usan desde app.module (guard global).
+
+
 @Global()
 @Module({
   imports: [
