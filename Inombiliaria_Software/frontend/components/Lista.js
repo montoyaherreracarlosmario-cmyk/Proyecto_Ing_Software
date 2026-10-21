@@ -41,7 +41,6 @@ export default function Lista({ data, tab, setTab, abrir, filtros, setFiltros, n
       <Filtros f={filtros} setF={setFiltros} total={data.length} mostrados={base.length} />
       <div className="toolbar">
         <h2>{tab === 'Casa' ? 'Casas' : 'Apartamentos'}</h2>
-
       </div>
       {items.length === 0 && <div className="card vacio">Ningún inmueble coincide con los filtros. Amplía los rangos o cambia de pestaña.</div>}
       <div className="lista">
@@ -56,12 +55,6 @@ export default function Lista({ data, tab, setTab, abrir, filtros, setFiltros, n
         >
           <span className="nuevo-mas" aria-hidden="true">+</span>
         </article>
-
-        <button className="g" onClick={nuevo}>Agregar inmueble</button>
-      </div>
-      {items.length === 0 && <div className="card vacio">Ningún inmueble coincide con los filtros. Amplía los rangos o cambia de pestaña.</div>}
-      <div className="lista">
-
         {items.map((i) => <Tarjeta key={i._id} i={i} abrir={() => abrir(i._id)} />)}
       </div>
     </div>
