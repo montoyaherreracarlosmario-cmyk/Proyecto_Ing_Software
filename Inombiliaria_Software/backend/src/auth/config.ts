@@ -1,7 +1,4 @@
-// ===== Configuración del login con Google =====
-// El Client ID de Google es público por diseño (viaja en el frontend), así que se
-// puede embeber aquí y, si algún día se quiere cambiar, se sobrescribe con la
-// variable de entorno GOOGLE_CLIENT_ID (sin tocar código).
+
 export const GOOGLE_CLIENT_ID =
   process.env.GOOGLE_CLIENT_ID ||
   '305367642614-imcnroh46epfbp8cmr3bbhqu230aa0jf.apps.googleusercontent.com';
