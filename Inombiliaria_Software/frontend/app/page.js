@@ -22,17 +22,18 @@ export default function Home() {
   const [oculto, setOculto] = useState(false);
   const [toast, setToast] = useState('');
 
-  // Lee la sesión guardada y la revalida contra el backend
+
   useEffect(() => {
     const s = getSesion();
     if (!s?.token) { setListo(true); return; }
-    yo().then((u) => {
-      if (u) setSesion(s);
-      setListo(true);
-    });
+    yo()
+      .then((u) => { if (u) setSesion(s); })
+
+      .catch(() => setSesion(s))
+      .finally(() => setListo(true));
   }, []);
 
-  // La cabecera guarda la última sesión por si otra pestaña cierra sesión
+
   useEffect(() => {
     const f = () => { const s = getSesion(); if (!s?.token) { setSesion(null); setData(null); } };
     addEventListener('habitat-sesion', f);
@@ -42,7 +43,7 @@ export default function Home() {
   const cargar = () => getInmuebles().then(setData).catch((e) => setErr(e.message || 'No se pudo conectar con el backend. Revisa que NestJS esté corriendo y que NEXT_PUBLIC_API_URL sea correcta.'));
   useEffect(() => { if (sesion) cargar(); }, [sesion]);
 
-  // La cabecera se esconde al bajar y reaparece al subir
+
   useEffect(() => {
     let u = 0;
     const f = () => { const y = scrollY; if (y > u && y > 80) setOculto(true); else if (y < u) setOculto(false); u = Math.max(y, 0); };
