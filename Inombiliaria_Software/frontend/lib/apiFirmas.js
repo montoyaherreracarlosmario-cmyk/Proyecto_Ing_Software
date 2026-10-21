@@ -47,9 +47,10 @@ export async function verificar(id) {
   return j(r);
 }
 
-// El PDF del acuerdo es administrativo: incluye el token en la URL para que el
-// navegador lo descargue autenticado (se abre en pestaña con ?token=…).
-export const urlPdf = (id) => {
-  const t = getToken();
+// El PDF del acuerdo se descarga desde un <a href>. Se adjunta como ?token= la
+// sesión del administrador si existe; si no, el token del firmante (página pública
+// /firma/[token]), que el backend también acepta.
+export const urlPdf = (id, tokenFirmante) => {
+  const t = getToken() || tokenFirmante;
   return `${API}/api/firmas/acuerdos/${id}/pdf${t ? `?token=${encodeURIComponent(t)}` : ''}`;
 };
