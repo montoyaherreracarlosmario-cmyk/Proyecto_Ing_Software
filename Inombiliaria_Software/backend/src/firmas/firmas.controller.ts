@@ -51,19 +51,6 @@ export class FirmasController {
     return this.svc.verificar(id);
   }
 
-  // PDF de un contrato en borrador (sin firmas). Requiere sesión de administrador.
-  @Post('borrador/pdf')
-  @HttpCode(200)
-  async pdfBorrador(@Body() body: any, @Req() req: any, @Res() res: any) {
-    const esAdmin = !!(await this.auth.usuarioDe(req));
-    if (!esAdmin) return res.status(401).json({ error: 'Debes iniciar sesión' });
-    const { tipo, datos } = body || {};
-    const buffer = await this.svc.pdfBorrador(tipo, datos);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="borrador-${tipo}.pdf"`);
-    return res.send(buffer);
-  }
-
   // PDF final (contrato + firmas + anexo de evidencia).
   // Se descarga desde un <a href>, que no puede mandar cabecera Authorization:
   // se acepta ?token= bien sea la sesión del administrador o el token del firmante.

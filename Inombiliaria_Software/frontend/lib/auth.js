@@ -1,7 +1,11 @@
+// ===== Sesión del administrador (login con Google) =====
+// El token de sesión se guarda en localStorage; el backend lo emite tras
+// verificar el ID token de Google contra la lista blanca de administradores.
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const CLAVE = 'habitat_sesion';
 const CLAVE_GOOGLE = 'habitat_google_client_id';
 
+// Client ID de Google (público). Se puede cambiar con NEXT_PUBLIC_GOOGLE_CLIENT_ID.
 export const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   '305367642614-imcnroh46epfbp8cmr3bbhqu230aa0jf.apps.googleusercontent.com';
@@ -25,12 +29,13 @@ export function limpiarSesion() {
   window.dispatchEvent(new Event('habitat-sesion'));
 }
 
-
+// Cabeceras con la sesión (para fetch autenticados)
 export function conAuth(extra = {}) {
   const token = getToken();
   return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
 }
 
+// Si el backend responde 401, la sesión ya no sirve: se limpia y se avisa.
 export function sesionExpirada(r) {
   if (r && r.status === 401) {
     limpiarSesion();
@@ -39,18 +44,13 @@ export function sesionExpirada(r) {
   return false;
 }
 
-
+// ---- Llamadas a la API de autenticación ----
 export async function loginGoogle(credential) {
-  let r;
-  try {
-    r = await fetch(`${API}/api/auth/google`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential }),
-    });
-  } catch {
-    throw new Error('No se pudo conectar con el servidor. Intenta de nuevo en unos segundos.');
-  }
+  const r = await fetch(`${API}/api/auth/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential }),
+  });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || 'No se pudo iniciar sesión');
   guardarSesion(j);
@@ -67,38 +67,22 @@ export async function salir() {
 export async function yo() {
   const r = await fetch(`${API}/api/auth/me`, { headers: conAuth(), cache: 'no-store' });
   if (sesionExpirada(r)) return null;
-  if (!r.ok) throw new Error('El servidor no respondió');
   const j = await r.json().catch(() => ({}));
-
-  if (!j.usuario) { limpiarSesion(); return null; }
-  return j.usuario;
+  return j.usuario || null;
 }
 
-
-let promesaGoogle = null;
+// Carga el script de Google Identity Services una sola vez.
 export function cargarGoogle(scriptId = 'gsi-client') {
   if (typeof document === 'undefined') return Promise.resolve();
-  if (window.google?.accounts?.id) return Promise.resolve();
-  if (promesaGoogle) return promesaGoogle;
-
-  promesaGoogle = new Promise((resolve, reject) => {
-    let s = document.getElementById(scriptId);
-    const fallo = () => {
-      promesaGoogle = null; // permite reintentar
-      s?.remove();
-      reject(new Error('No se pudo cargar Google'));
-    };
-    if (!s) {
-      s = document.createElement('script');
-      s.id = scriptId;
-      s.src = 'https://accounts.google.com/gsi/client';
-      s.async = true;
-      s.defer = true;
-      document.head.appendChild(s);
-    }
-    s.addEventListener('load', resolve, { once: true });
-    s.addEventListener('error', fallo, { once: true });
-    setTimeout(() => { if (!window.google?.accounts?.id) fallo(); }, 15000);
+  if (document.getElementById(scriptId)) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.id = scriptId;
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.async = true;
+    s.defer = true;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('No se pudo cargar Google'));
+    document.head.appendChild(s);
   });
-  return promesaGoogle;
 }

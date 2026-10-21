@@ -64,12 +64,7 @@ export default function Detalle({ inm: i, volver, crear, actualizar, avisar }) {
           onKeyDown={alTeclado}
         >
           {i.foto ? <img className="foto-thumb" src={urlImagen(i.foto)} alt={i.nombre} /> : <Ilustra tipo={i.tipo} />}
-          {i.foto
-            ? <span className="foto-cap">{subiendo ? 'Subiendo…' : 'Cambiar foto'}</span>
-            : <span className="foto-mas" aria-hidden="true">{subiendo ? '…' : '+'}</span>}
-
           <span className="foto-cap">{subiendo ? 'Subiendo…' : i.foto ? 'Cambiar foto' : 'Agregar foto'}</span>
-
         </div>
         <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" style={{ display: 'none' }} onChange={elegirFoto} />
         <div className="ficha-body">

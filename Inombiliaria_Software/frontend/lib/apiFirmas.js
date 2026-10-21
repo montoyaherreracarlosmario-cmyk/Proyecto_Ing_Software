@@ -47,34 +47,9 @@ export async function verificar(id) {
   return j(r);
 }
 
-// El PDF del acuerdo se descarga desde un <a href>. Se adjunta como ?token= la
-// sesión del administrador si existe; si no, el token del firmante (página pública
-// /firma/[token]), que el backend también acepta.
-export const urlPdf = (id, tokenFirmante) => {
-  const t = getToken() || tokenFirmante;
+// El PDF del acuerdo es administrativo: incluye el token en la URL para que el
+// navegador lo descargue autenticado (se abre en pestaña con ?token=…).
+export const urlPdf = (id) => {
+  const t = getToken();
   return `${API}/api/firmas/acuerdos/${id}/pdf${t ? `?token=${encodeURIComponent(t)}` : ''}`;
 };
-
-// Administrativo: descarga directa del PDF del contrato en borrador (sin firmas).
-// Hace POST con la sesión y dispara la descarga del archivo recibido.
-export async function descargarPdfBorrador(tipo, datos) {
-  const r = await fetch(`${API}/api/firmas/borrador/pdf`, {
-    method: 'POST',
-    headers: conAuth({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ tipo, datos }),
-  });
-  sesionExpirada(r);
-  if (!r.ok) {
-    const e = await r.json().catch(() => ({}));
-    throw new Error(e.error || 'No se pudo generar el PDF');
-  }
-  const blob = await r.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `borrador-${tipo}.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}

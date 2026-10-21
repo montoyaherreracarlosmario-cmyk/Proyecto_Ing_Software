@@ -354,28 +354,8 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 
 .filtros-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px }
 .ft { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-display), sans-serif; font-size: 1.05rem }
-.filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 4px 18px }
+.filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 4px 18px }
 .rango { display: flex; gap: 8px }
-
-/* Filtros como píldoras (reemplazan el <select> nativo) */
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; align-items: center }
-.chips-hint { font-weight: 500; text-transform: none; color: var(--mut) }
-.filtro-lbl { font-size: .95rem; font-weight: 800; color: var(--ac); letter-spacing: .01em; margin: 14px 0 6px }
-.chip {
-    font: inherit; font-size: 1rem; font-weight: 700;
-    padding: 10px 18px; border-radius: 999px;
-    border: 1.5px solid var(--bd); background: var(--bg); color: var(--mut);
-    cursor: pointer; line-height: 1; transition: border-color .18s, background .18s, color .18s, box-shadow .18s, transform .12s
-}
-.chip:hover { border-color: var(--ac2); color: var(--tx); transform: translateY(-1px) }
-.chip:focus-visible { outline: 0; border-color: var(--ac); box-shadow: 0 0 0 3px var(--ring) }
-.chip.on { background: var(--ac); border-color: var(--ac); color: var(--onac); box-shadow: 0 3px 10px rgba(15, 76, 67, .28) }
-.chip-num {
-    width: 76px; font: inherit; font-size: 1rem; font-weight: 700;
-    padding: 10px 14px; border-radius: 999px; text-align: center;
-    border: 1.5px solid var(--ac); background: var(--card); color: var(--tx)
-}
-.chip-num:focus { outline: 0; box-shadow: 0 0 0 3px var(--ring) }
 
 .visor { max-width: 660px; margin: 0 auto 12px; display: flex; gap: 10px; align-items: center; font-weight: 600; color: var(--mut) }
 .grid > div > .visor { margin-left: 0 }
@@ -428,48 +408,14 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 
 /* ---------- Cabecera de usuario (sesión) ---------- */
 .header-der { display: flex; align-items: center; gap: 18px }
-.tema-btn {
-    display: inline-grid; place-items: center;
-    width: 40px; height: 40px; padding: 0;
-    border-radius: 50%; cursor: pointer;
-    border: 1.5px solid var(--bd); background: var(--bg); color: var(--tx);
-    transition: border-color .18s, background .18s, color .18s, transform .12s
-}
-.tema-btn:hover { border-color: var(--ac); color: var(--ac); transform: rotate(-12deg) }
-.tema-btn:focus-visible { outline: 0; border-color: var(--ac); box-shadow: 0 0 0 3px var(--ring) }
-.login-fondo ~ .tema-btn, .login-main > .tema-btn { position: absolute; top: 20px; right: 24px; z-index: 2 }
 .usuario { display: flex; align-items: center; gap: 10px }
 .usuario img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--bd) }
 .usuario-nom { font-size: .9rem; font-weight: 600; color: var(--tx); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 @media(max-width:700px) { .header-der p { display: none } .usuario-nom { display: none } }
 
 /* ---------- Pantalla de inicio de sesión ---------- */
-.login-main { position: relative; min-height: 100vh; max-width: none; margin: 0; padding: 8vh 24px 72px; display: flex; justify-content: center; align-items: center }
-
-/* Fondo corporativo sutil: navy + gris oscuro con sombras arquitectónicas y reflejos de cristal (16:9, minimalista) */
-.login-fondo {
-    position: fixed; inset: 0; z-index: -1; overflow: hidden;
-    background:
-        radial-gradient(120% 90% at 15% 8%, rgba(46, 68, 110, .55), transparent 55%),
-        radial-gradient(100% 80% at 88% 92%, rgba(30, 44, 74, .5), transparent 60%),
-        linear-gradient(135deg, #0b1f3a 0%, #101826 52%, #1c2330 100%);
-}
-/* Sombras geométricas arquitectónicas */
-.login-fondo::before {
-    content: ""; position: absolute; inset: 0;
-    background:
-        conic-gradient(from 210deg at 78% 22%, rgba(255,255,255,.06), transparent 22%),
-        linear-gradient(115deg, transparent 62%, rgba(255,255,255,.05) 62.4%, transparent 63%),
-        linear-gradient(105deg, transparent 74%, rgba(255,255,255,.04) 74.3%, transparent 75%);
-}
-/* Reflejos de cristal diagonales */
-.login-fondo::after {
-    content: ""; position: absolute; inset: -20% -10%;
-    background: linear-gradient(72deg, transparent 40%, rgba(180, 210, 255, .07) 47%, transparent 54%),
-                linear-gradient(72deg, transparent 58%, rgba(180, 210, 255, .05) 62%, transparent 66%);
-    mix-blend-mode: screen;
-}
-.login-card { position: relative; z-index: 1; width: min(430px, 100%); text-align: center; padding: 40px 34px 30px; margin: 0; box-shadow: var(--sh2) }
+.login-main { max-width: 1120px; margin: 0 auto; padding: 8vh 24px 72px; display: flex; justify-content: center }
+.login-card { width: min(430px, 100%); text-align: center; padding: 40px 34px 30px; margin: 0 }
 .login-marca { justify-content: center; margin-bottom: 18px }
 .login-marca h1 { color: var(--ac) }
 .login-t { margin: 0 0 8px; font-size: 1.7rem }
@@ -495,63 +441,3 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
     .hoja { box-shadow: none !important; border: 0; padding: 0 !important; max-width: none !important; min-height: 0 }
     .hoja b, .hoja .bl { color: #000 }
 }
-
-
-
-.dd-fila { display: flex; gap: 8px; align-items: center }
-.dd { position: relative; flex: 1; min-width: 0 }
-.dd.abierto { z-index: 20 }
-.dd-btn {
-    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    font: inherit; font-size: 1rem; font-weight: 600; text-align: left;
-    padding: 11px 13px; border-radius: 10px;
-    border: 1.5px solid var(--bd); background: var(--bg); color: var(--tx)
-}
-.dd-btn:hover, .dd.abierto .dd-btn { border-color: var(--ac); color: var(--tx) }
-.dd.abierto .dd-btn { box-shadow: 0 0 0 4px var(--ring) }
-.dd-flecha { flex: none; color: var(--ac); transition: transform .25s ease }
-.dd.abierto .dd-flecha { transform: rotate(180deg) }
-.dd-panel {
-    position: absolute; top: calc(100% + 6px); left: 0; right: 0; margin: 0; padding: 6px; list-style: none;
-    background: var(--card); border: 1.5px solid var(--bd); border-radius: 12px; box-shadow: var(--sh2);
-    transform-origin: top center; animation: dd-abrir .22s cubic-bezier(.2, .9, .3, 1.2) both;
-    max-height: 280px; overflow-y: auto
-}
-.dd-panel li { animation: dd-item .26s ease both; animation-delay: calc(var(--n) * 28ms) }
-.dd-op {
-    width: 100%; text-align: left; border: 0; background: none; color: var(--tx);
-    padding: 9px 12px; border-radius: 8px; font-size: .95rem; font-weight: 600
-}
-.dd-op:hover, .dd-op:focus-visible { background: var(--bg); color: var(--ac); outline: 0 }
-.dd-op.on { background: var(--ac); color: var(--onac) }
-.dd-num { width: 84px; flex: none; text-align: center; font-weight: 700; border-color: var(--ac) }
-@keyframes dd-abrir { from { opacity: 0; transform: translateY(-8px) scaleY(.85) } to { opacity: 1; transform: none } }
-@keyframes dd-item { from { opacity: 0; transform: translateX(-8px) } to { opacity: 1; transform: none } }
-@media (prefers-reduced-motion: reduce) { .dd-panel, .dd-panel li { animation: none } .dd-flecha { transition: none } }
-
-
-.foto-mas {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 64px; height: 64px; border-radius: 50%;
-    display: grid; place-items: center; padding-bottom: 4px;
-    background: rgba(12, 20, 18, .62); color: #fff; border: 2px solid rgba(255, 255, 255, .85);
-    font-size: 2.4rem; font-weight: 300; line-height: 1;
-    transition: transform .2s ease, background .2s ease; pointer-events: none
-}
-.thumb.editable:hover .foto-mas, .thumb.editable:focus-visible .foto-mas,
-.foto-picker:hover .foto-mas, .foto-picker:focus-visible .foto-mas { transform: translate(-50%, -50%) scale(1.1); background: var(--ac) }
-
-
-.nuevo-item {
-    min-height: 260px; align-items: center; justify-content: center;
-    background: transparent; border: 2px dashed var(--bd); box-shadow: none
-}
-.nuevo-item:hover:not(.estatica) { border-color: var(--ac); background: var(--card) }
-.nuevo-mas {
-    width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; padding-bottom: 6px;
-    background: var(--bg); color: var(--ac); border: 2px solid var(--bd);
-    font-size: 3.4rem; font-weight: 300; line-height: 1;
-    transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease
-}
-.nuevo-item:hover .nuevo-mas, .nuevo-item:focus-visible .nuevo-mas { transform: scale(1.1) rotate(90deg); background: var(--ac); color: var(--onac); border-color: var(--ac) }
-
