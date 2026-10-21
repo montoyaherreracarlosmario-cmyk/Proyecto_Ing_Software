@@ -1,6 +1,7 @@
 import Caract from './Caract';
 import Ilustra from './Ilustra';
 import { fd, fmt, cls, sufijo } from '../lib/utils';
+import { urlImagen } from '../lib/apiImagenes';
 
 // Tarjeta de un inmueble (la usan la lista y la vista previa del formulario)
 export default function Tarjeta({ i, abrir }) {
@@ -8,15 +9,14 @@ export default function Tarjeta({ i, abrir }) {
   return (
     <article className={`card item${abrir ? '' : ' estatica'}`} {...ir}>
       <div className={`thumb ${i.tipo}`}>
-        <Ilustra tipo={i.tipo} />
-        <span className={`tag ${cls(i.estado)}`}>{i.estado}</span>
+        {i.foto ? <img className="foto-thumb" src={urlImagen(i.foto)} alt={i.nombre} loading="lazy" /> : <Ilustra tipo={i.tipo} />}
       </div>
       <div className="info">
         <h3 className="nom">{i.nombre}</h3>
         {(i.dir || i.barrio) && <p className="dir">{[i.dir, i.barrio].filter(Boolean).join(' · ')}</p>}
         <Caract i={i} />
         {i.venc && <p className="meta">Contrato vence el {fd(i.venc)} · pago el día {i.diaPago}</p>}
-        <p className="precio">{fmt(i.valor)}<small>{sufijo(i)}</small></p>
+        <p className="precio">{fmt(i.valor)}<small>{sufijo(i)}</small><span className={`tag grande ${cls(i.estado)}`}>{i.estado}</span></p>
       </div>
     </article>
   );
