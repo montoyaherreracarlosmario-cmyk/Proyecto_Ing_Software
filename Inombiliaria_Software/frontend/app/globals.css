@@ -428,6 +428,16 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 
 /* ---------- Cabecera de usuario (sesión) ---------- */
 .header-der { display: flex; align-items: center; gap: 18px }
+.tema-btn {
+    display: inline-grid; place-items: center;
+    width: 40px; height: 40px; padding: 0;
+    border-radius: 50%; cursor: pointer;
+    border: 1.5px solid var(--bd); background: var(--bg); color: var(--tx);
+    transition: border-color .18s, background .18s, color .18s, transform .12s
+}
+.tema-btn:hover { border-color: var(--ac); color: var(--ac); transform: rotate(-12deg) }
+.tema-btn:focus-visible { outline: 0; border-color: var(--ac); box-shadow: 0 0 0 3px var(--ring) }
+.login-fondo ~ .tema-btn, .login-main > .tema-btn { position: absolute; top: 20px; right: 24px; z-index: 2 }
 .usuario { display: flex; align-items: center; gap: 10px }
 .usuario img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--bd) }
 .usuario-nom { font-size: .9rem; font-weight: 600; color: var(--tx); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }

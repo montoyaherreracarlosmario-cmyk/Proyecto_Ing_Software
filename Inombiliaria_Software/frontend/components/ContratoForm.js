@@ -52,7 +52,8 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
           <Hoja modo={modo} S={S} />
           <div className="row noprint" style={{ justifyContent: 'center' }}>
             <button className="g" onClick={enviar} disabled={creando}>{creando ? 'Generando…' : 'Enviar link para firma'}</button>
-            <button onClick={() => window.print()}>Descargar PDF</button>
+            <button type="button" onClick={() => window.print()}>Imprimir</button>
+            <button type="button" onClick={() => { avisar('Elige "Guardar como PDF" en el destino de impresión'); setTimeout(() => window.print(), 400); }}>Descargar PDF</button>
           </div>
           {links.length > 0 && (
             <div className="card view noprint">

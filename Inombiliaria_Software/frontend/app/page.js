@@ -9,6 +9,7 @@ import Login from '../components/Login';
 import { FILTROS0 } from '../lib/utils';
 import { getSesion, salir, yo } from '../lib/auth';
 import { Logo } from '../components/Iconos';
+import TemaBtn from '../components/TemaBtn';
 
 export default function Home() {
   const [sesion, setSesion] = useState(null);
@@ -63,6 +64,7 @@ export default function Home() {
         <div className="marca"><Logo /><h1>Habitat Capital</h1></div>
         <div className="header-der">
           <p>Gestión de inmuebles y contratos</p>
+          <TemaBtn />
           <div className="usuario">
             {sesion.usuario?.foto ? <img src={sesion.usuario.foto} alt="" referrerPolicy="no-referrer" /> : null}
             <span className="usuario-nom">{sesion.usuario?.nombre || sesion.usuario?.email}</span>
