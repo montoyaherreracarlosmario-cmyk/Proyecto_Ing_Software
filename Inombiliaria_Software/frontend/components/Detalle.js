@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 import Caract from './Caract';
 import Ilustra from './Ilustra';
-import { fd, fmt, cls, porVencer } from '../lib/utils';
+import { fd, fmt, cls, porVencer, estaPorVencer } from '../lib/utils';
 import { subirImagen, urlImagen } from '../lib/apiImagenes';
 import { setFotoInmueble } from '../lib/api';
 
@@ -77,6 +77,7 @@ export default function Detalle({ inm: i, volver, crear, actualizar, avisar }) {
               <span>{i.estado === 'Para la venta' || i.estado === 'Vendida' ? 'Precio de venta' : 'Valor mensual'}</span>
               <b className="precio-val">{fmt(i.valor)}</b>
               <span className={`tag grande ${cls(i.estado)}`}>{i.estado}</span>
+              {estaPorVencer(i) && <span className="tag grande PorVencer">Por vencer</span>}
             </div>
             {i.venc && <div className="dato"><span>Vencimiento del contrato</span><b>{fd(i.venc)}</b></div>}
             {i.venc && <div className="dato"><span>Día de pago</span><b>El {i.diaPago} de cada mes</b></div>}
