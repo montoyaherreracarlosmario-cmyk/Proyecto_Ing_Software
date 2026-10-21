@@ -1,5 +1,7 @@
 import { fmt } from '../lib/utils';
+ Mario
 import FirmaEspacio from './firmas/FirmaEspacio';
+main
 
 const V = ({ x, d }) => (x && String(x).trim() ? <b>{x}</b> : <b className="bl">{d || '__________'}</b>);
 
