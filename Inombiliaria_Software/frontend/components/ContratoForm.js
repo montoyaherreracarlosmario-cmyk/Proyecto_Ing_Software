@@ -1,17 +1,31 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Hoja from './Hoja';
-import { crearAcuerdo, descargarPdfBorrador } from '../lib/apiFirmas';
+import { crearAcuerdo, descargarPdfBorrador, obtenerAcuerdo } from '../lib/apiFirmas';
 
 export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) {
   const [modo, setModo] = useState(modo0);
   const [links, setLinks] = useState([]);
+  const [acuerdoId, setAcuerdoId] = useState(null);
   const [creando, setCreando] = useState(false);
   const [descargando, setDescargando] = useState(false);
   const [S, setS] = useState({ arr: 'Inmobiliaria', ate: '', vend: '', comp: '', ciu: 'Ibagué', dir: inm.dir || '', bar: inm.barrio || '', lin: inm.lind || '', val: inm.valor || '', dur: 12, dia: 5, pago: 'De contado', cods: [''] });
   const set = (k) => (e) => setS({ ...S, [k]: e.target.value });
   // OJO: es una función (no un componente) para que el input no pierda el foco al escribir
   const campo = (k, l, t, p) => (<><label>{l}</label><input type={t || 'text'} placeholder={p} value={S[k]} onChange={set(k)} /></>);
+
+  // Mientras se espera la firma, consulta el acuerdo; al cerrarse (todos firmaron)
+  // el backend ya dejó el inmueble como Arrendada/Vendida y se vuelve al detalle.
+  useEffect(() => {
+    if (!acuerdoId) return;
+    const t = setInterval(async () => {
+      try {
+        const a = await obtenerAcuerdo(acuerdoId);
+        if (a.estado === 'firmado') { clearInterval(t); avisar('Firmas completas: el inmueble fue actualizado'); terminado(); }
+      } catch { /* reintenta en el siguiente ciclo */ }
+    }, 4000);
+    return () => clearInterval(t);
+  }, [acuerdoId]);
 
   // Crea el acuerdo de firma en la API y genera el enlace privado de cada parte
   const enviar = async () => {
@@ -22,6 +36,7 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
         ? [{ rol: 'arrendador', nombre: S.arr }, { rol: 'arrendatario', nombre: S.ate }]
         : [{ rol: 'comprador', nombre: S.comp }, { rol: 'vendedor', nombre: S.vend }];
       const r = await crearAcuerdo({ inmueble: inm._id, tipo: modo, datos: S, firmantes });
+      setAcuerdoId(r.id);
       setLinks(r.links.map((l) => ({ ...l, full: `${window.location.origin}${l.url}` })));
       avisar('Enlaces de firma generados');
     } catch { avisar('No se pudo crear el acuerdo de firma'); }
@@ -70,13 +85,15 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
           {links.length > 0 && (
             <div className="card view noprint">
               <b>Enlaces de firma (se firma en orden: primero uno, luego el otro)</b>
-              {links.map((l) => (
-                <div key={l.token} className="row" style={{ margin: '10px 0' }}>
-                  <span style={{ minWidth: 120, textTransform: 'capitalize' }}>{l.rol}</span>
-                  <span className="link" style={{ flex: 1 }}>{l.full}</span>
-                  <button onClick={() => { navigator.clipboard?.writeText(l.full); avisar('Link copiado'); }}>Copiar</button>
-                </div>
-              ))}
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 10 }}>
+                {links.map((l) => (
+                  <div key={l.token} style={{ flex: '1 1 240px', minWidth: 0 }}>
+                    <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{l.rol}</span>
+                    <div className="link">{l.full}</div>
+                    <button style={{ marginTop: 8 }} onClick={() => { navigator.clipboard?.writeText(l.full); avisar('Link copiado'); }}>Copiar</button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

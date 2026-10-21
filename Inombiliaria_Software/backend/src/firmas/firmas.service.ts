@@ -5,6 +5,7 @@ import { NOMBRE_ACUERDO } from './model';
 import { hashContrato, hashCadena, generarToken, ipDe, tokenSeguro } from './hash';
 import { generarPdf, generarPdfBorrador, guardarEnGridFS, leerDeGridFS } from './pdf';
 import { ErrorFirma } from './errores';
+import { InmueblesService } from '../inmuebles/inmuebles.service';
 
 const METODOS = ['tipografica', 'canvas', 'imagen'];
 const MAX_FIRMA = Number(process.env.MAX_FIRMA_BYTES || 1000000);
@@ -29,6 +30,7 @@ export class FirmasService {
   constructor(
     @InjectModel(NOMBRE_ACUERDO) private readonly acuerdos: Model<any>,
     @InjectConnection() private readonly conn: Connection,
+    private readonly inmuebles: InmueblesService,
   ) {}
 
   // ===== Crear acuerdo: genera los 3 tokens y el hash del contrato =====
@@ -211,6 +213,7 @@ export class FirmasService {
       acuerdo.estado = 'firmado';
       acuerdo.cerradoEn = new Date();
       await acuerdo.save();
+      await this.marcarInmueble(acuerdo);
       // Congela el PDF final en GridFS
       try {
         const buffer = await generarPdf(acuerdo);
@@ -224,6 +227,21 @@ export class FirmasService {
     }
 
     return this.vistaToken(acuerdo, propia);
+  }
+
+  // Firmas completas: el inmueble pasa a Arrendada (arriendo) o Vendida (compraventa)
+  private async marcarInmueble(acuerdo: any) {
+    if (!acuerdo.inmueble) return;
+    const d = acuerdo.datos || {};
+    try {
+      await this.inmuebles.crearContrato(String(acuerdo.inmueble), {
+        modo: acuerdo.tipo,
+        firmantes: acuerdo.firmantes.map((f: any) => f.datos?.nombre || f.nombre),
+        dur: d.dur, dia: d.dia, val: d.val, dir: d.dir, bar: d.bar, lin: d.lin,
+      });
+    } catch (e: any) {
+      console.error('No se pudo actualizar el estado del inmueble:', e.message);
+    }
   }
 
   // ===== Rechazo: solo el administrador (orden 3) en su turno =====

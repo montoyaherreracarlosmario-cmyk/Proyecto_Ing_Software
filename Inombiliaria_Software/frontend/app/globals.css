@@ -498,8 +498,7 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 
 
 
-.dd-fila { display: flex; gap: 8px; align-items: center }
-.dd { position: relative; flex: 1; min-width: 0 }
+.dd { position: relative; min-width: 0 }
 .dd.abierto { z-index: 20 }
 .dd-btn {
     width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -511,23 +510,18 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 .dd.abierto .dd-btn { box-shadow: 0 0 0 4px var(--ring) }
 .dd-flecha { flex: none; color: var(--ac); transition: transform .25s ease }
 .dd.abierto .dd-flecha { transform: rotate(180deg) }
+/* Panel que se despliega: las opciones aparecen como píldoras, una tras otra */
 .dd-panel {
-    position: absolute; top: calc(100% + 6px); left: 0; right: 0; margin: 0; padding: 6px; list-style: none;
-    background: var(--card); border: 1.5px solid var(--bd); border-radius: 12px; box-shadow: var(--sh2);
-    transform-origin: top center; animation: dd-abrir .22s cubic-bezier(.2, .9, .3, 1.2) both;
-    max-height: 280px; overflow-y: auto
+    position: absolute; top: calc(100% + 8px); left: 0; width: min(340px, calc(100vw - 4rem)); padding: 14px;
+    background: var(--card); border: 1.5px solid var(--bd); border-radius: 16px; box-shadow: var(--sh2);
+    transform-origin: top left; animation: dd-abrir .28s cubic-bezier(.2, .9, .3, 1.15) backwards
 }
-.dd-panel li { animation: dd-item .26s ease both; animation-delay: calc(var(--n) * 28ms) }
-.dd-op {
-    width: 100%; text-align: left; border: 0; background: none; color: var(--tx);
-    padding: 9px 12px; border-radius: 8px; font-size: .95rem; font-weight: 600
-}
-.dd-op:hover, .dd-op:focus-visible { background: var(--bg); color: var(--ac); outline: 0 }
-.dd-op.on { background: var(--ac); color: var(--onac) }
-.dd-num { width: 84px; flex: none; text-align: center; font-weight: 700; border-color: var(--ac) }
-@keyframes dd-abrir { from { opacity: 0; transform: translateY(-8px) scaleY(.85) } to { opacity: 1; transform: none } }
-@keyframes dd-item { from { opacity: 0; transform: translateX(-8px) } to { opacity: 1; transform: none } }
-@media (prefers-reduced-motion: reduce) { .dd-panel, .dd-panel li { animation: none } .dd-flecha { transition: none } }
+.dd-panel .chips { margin-top: 0 }
+.dd-panel .chip { animation: dd-chip .34s cubic-bezier(.2, .9, .3, 1.3) backwards; animation-delay: calc(var(--n, 0) * 45ms + 60ms) }
+@keyframes dd-abrir { from { opacity: 0; transform: translateY(-10px) scale(.94) } to { opacity: 1; transform: none } }
+@keyframes dd-chip { from { opacity: 0; transform: translateY(8px) scale(.6) } to { opacity: 1; transform: none } }
+@media (prefers-reduced-motion: reduce) { .dd-panel, .dd-panel .chip { animation: none } .dd-flecha { transition: none } }
+.foto-cap.subiendo { opacity: 1 }
 
 
 .foto-mas {

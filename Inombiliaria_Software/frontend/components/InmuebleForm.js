@@ -73,20 +73,8 @@ export default function InmuebleForm({ tipo0, volver, creado, avisar }) {
           >
             {S.foto ? <img src={urlImagen(S.foto)} alt="Foto del inmueble" /> : <Ilustra tipo={S.tipo} />}
 
-            {S.foto
-              ? <span className="foto-cap">{subiendoFoto ? 'Subiendo…' : 'Cambiar foto'}</span>
-              : <span className="foto-mas" aria-hidden="true">{subiendoFoto ? '…' : '+'}</span>}
-
-            <span className="foto-cap">{subiendoFoto ? 'Subiendo…' : S.foto ? 'Cambiar foto' : 'Agregar foto'}</span>
-
-            {S.foto && !subiendoFoto && (
-              <button
-                type="button"
-                className="foto-quitar"
-                aria-label="Quitar foto"
-                onClick={(e) => { e.stopPropagation(); setS({ ...S, foto: '' }); }}
-              >×</button>
-            )}
+            {!S.foto && <span className="foto-mas" aria-hidden="true">{subiendoFoto ? '…' : '+'}</span>}
+            {S.foto && subiendoFoto && <span className="foto-cap subiendo">Subiendo…</span>}
           </div>
           <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" style={{ display: 'none' }} onChange={elegirFoto} />
           <div className="row"><button className="g" disabled={env} onClick={guardar}>{env ? 'Guardando…' : 'Guardar inmueble'}</button></div>

@@ -19,6 +19,12 @@ export async function crearAcuerdo(datos) {
   return j(r);
 }
 
+// Administrativo: estado del acuerdo (para saber cuándo se completó la firma).
+export async function obtenerAcuerdo(id) {
+  const r = await fetch(`${API}/api/firmas/acuerdos/${id}`, { cache: 'no-store', headers: conAuth() });
+  return j(r);
+}
+
 // Público: el firmante externo abre su enlace sin sesión.
 export async function porToken(token) {
   const r = await fetch(`${API}/api/firmas/t/${token}`, { cache: 'no-store' });
