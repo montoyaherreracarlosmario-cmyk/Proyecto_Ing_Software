@@ -4,7 +4,9 @@ import { ErrorFirma } from '../firmas/errores';
 import { AuthService } from './auth.service';
 import { ES_PUBLICA } from './public.decorator';
 
-// Guard global: toda ruta exige una sesión válida salvo las marcadas con @Public().
+
+
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector, private readonly auth: AuthService) {}
@@ -18,7 +20,8 @@ export class AuthGuard implements CanActivate {
     const req: any = ctx.switchToHttp().getRequest();
     const usuario = await this.auth.usuarioDe(req);
 
-    // Si hay sesión, siempre se adjunta (así las rutas públicas también la ven).
+
+
     req.usuario = usuario;
 
     if (publica) return true;

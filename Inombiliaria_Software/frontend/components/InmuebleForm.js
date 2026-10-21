@@ -72,7 +72,13 @@ export default function InmuebleForm({ tipo0, volver, creado, avisar }) {
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!subiendoFoto) fileRef.current?.click(); } }}
           >
             {S.foto ? <img src={urlImagen(S.foto)} alt="Foto del inmueble" /> : <Ilustra tipo={S.tipo} />}
+
+            {S.foto
+              ? <span className="foto-cap">{subiendoFoto ? 'Subiendo…' : 'Cambiar foto'}</span>
+              : <span className="foto-mas" aria-hidden="true">{subiendoFoto ? '…' : '+'}</span>}
+
             <span className="foto-cap">{subiendoFoto ? 'Subiendo…' : S.foto ? 'Cambiar foto' : 'Agregar foto'}</span>
+
             {S.foto && !subiendoFoto && (
               <button
                 type="button"
