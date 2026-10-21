@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { NOMBRE_SESION, NOMBRE_USUARIO, SesionSchema, UsuarioSchema } from './model';
 
 
+
 @Global()
 @Module({
   imports: [

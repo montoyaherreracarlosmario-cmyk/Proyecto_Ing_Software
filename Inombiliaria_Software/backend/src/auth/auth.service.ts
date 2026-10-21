@@ -65,7 +65,7 @@ export class AuthService {
     return { token, usuario: this.publico(usuario) };
   }
 
-  
+
   async usuarioDe(req: any) {
     const cabecera = String(req?.headers?.authorization || '');
     const token = cabecera.startsWith('Bearer ') ? cabecera.slice(7).trim() : '';

@@ -7,6 +7,9 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
 
+
+
+
   @Public()
   @Post('google')
   @HttpCode(200)
@@ -14,7 +17,10 @@ export class AuthController {
     return this.auth.loginConGoogle(body?.credential);
   }
 
+
   
+
+
   @Public()
   @Get('me')
   me(@UsuarioActual() usuario: any) {

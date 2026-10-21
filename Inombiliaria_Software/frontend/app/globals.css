@@ -497,7 +497,7 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 }
 
 
-/* ---------- Lista desplegable de filtros ---------- */
+
 .dd-fila { display: flex; gap: 8px; align-items: center }
 .dd { position: relative; flex: 1; min-width: 0 }
 .dd.abierto { z-index: 20 }
@@ -529,7 +529,7 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 @keyframes dd-item { from { opacity: 0; transform: translateX(-8px) } to { opacity: 1; transform: none } }
 @media (prefers-reduced-motion: reduce) { .dd-panel, .dd-panel li { animation: none } .dd-flecha { transition: none } }
 
-/* ---------- Botón "+" para agregar foto ---------- */
+
 .foto-mas {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: 64px; height: 64px; border-radius: 50%;
@@ -541,7 +541,7 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 .thumb.editable:hover .foto-mas, .thumb.editable:focus-visible .foto-mas,
 .foto-picker:hover .foto-mas, .foto-picker:focus-visible .foto-mas { transform: translate(-50%, -50%) scale(1.1); background: var(--ac) }
 
-/* ---------- Cuadro "+" para agregar inmueble ---------- */
+
 .nuevo-item {
     min-height: 260px; align-items: center; justify-content: center;
     background: transparent; border: 2px dashed var(--bd); box-shadow: none
@@ -554,3 +554,4 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
     transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease
 }
 .nuevo-item:hover .nuevo-mas, .nuevo-item:focus-visible .nuevo-mas { transform: scale(1.1) rotate(90deg); background: var(--ac); color: var(--onac); border-color: var(--ac) }
+

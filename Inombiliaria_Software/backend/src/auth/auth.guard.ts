@@ -5,6 +5,8 @@ import { AuthService } from './auth.service';
 import { ES_PUBLICA } from './public.decorator';
 
 
+
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector, private readonly auth: AuthService) {}
@@ -18,7 +20,8 @@ export class AuthGuard implements CanActivate {
     const req: any = ctx.switchToHttp().getRequest();
     const usuario = await this.auth.usuarioDe(req);
 
-    
+
+
     req.usuario = usuario;
 
     if (publica) return true;
