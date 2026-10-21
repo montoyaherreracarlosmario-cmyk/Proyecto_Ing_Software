@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useState } from 'react';
-mainimport { FILTROS0, hayFiltros } from '../lib/utils';
+import { FILTROS0, hayFiltros } from '../lib/utils';
 import { IcoBuscar } from './Iconos';
 
 const MIN = [['', 'Cualquiera'], ['1', '1+'], ['2', '2+'], ['3', '3+'], ['4', '4+'], ['5', '5+']];
