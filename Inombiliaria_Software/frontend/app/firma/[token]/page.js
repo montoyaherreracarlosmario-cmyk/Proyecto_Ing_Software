@@ -65,7 +65,7 @@ export default function PaginaFirma() {
         </div>
         <div className="row" style={{ margin: 0 }}>
           <button type="button" onClick={() => window.print()}>Imprimir / PDF</button>
-          {vista.pdfDisponible && <a className="btn-pdf" href={urlPdf(vista.id)}>Descargar PDF final</a>}
+          {vista.pdfDisponible && <a className="btn-pdf" href={urlPdf(vista.id, token)}>Descargar PDF final</a>}
           <button type="button" onClick={comprobar}>Verificar integridad</button>
         </div>
       </div>
