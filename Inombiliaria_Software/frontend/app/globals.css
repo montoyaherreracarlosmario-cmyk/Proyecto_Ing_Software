@@ -358,17 +358,24 @@ input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ac);
 .rango { display: flex; gap: 8px }
 
 /* Filtros como píldoras (reemplazan el <select> nativo) */
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px }
-.chips-hint { font-weight: 500; text-transform: none }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; align-items: center }
+.chips-hint { font-weight: 500; text-transform: none; color: var(--mut) }
+.filtro-lbl { font-size: .95rem; font-weight: 800; color: var(--ac); letter-spacing: .01em; margin: 14px 0 6px }
 .chip {
-    font: inherit; font-size: .82rem; font-weight: 600;
-    padding: 6px 12px; border-radius: 999px;
+    font: inherit; font-size: 1rem; font-weight: 700;
+    padding: 10px 18px; border-radius: 999px;
     border: 1.5px solid var(--bd); background: var(--bg); color: var(--mut);
-    cursor: pointer; line-height: 1; transition: border-color .18s, background .18s, color .18s, box-shadow .18s
+    cursor: pointer; line-height: 1; transition: border-color .18s, background .18s, color .18s, box-shadow .18s, transform .12s
 }
-.chip:hover { border-color: var(--ac2); color: var(--tx) }
+.chip:hover { border-color: var(--ac2); color: var(--tx); transform: translateY(-1px) }
 .chip:focus-visible { outline: 0; border-color: var(--ac); box-shadow: 0 0 0 3px var(--ring) }
-.chip.on { background: var(--ac); border-color: var(--ac); color: var(--onac); box-shadow: 0 2px 8px rgba(15, 76, 67, .25) }
+.chip.on { background: var(--ac); border-color: var(--ac); color: var(--onac); box-shadow: 0 3px 10px rgba(15, 76, 67, .28) }
+.chip-num {
+    width: 76px; font: inherit; font-size: 1rem; font-weight: 700;
+    padding: 10px 14px; border-radius: 999px; text-align: center;
+    border: 1.5px solid var(--ac); background: var(--card); color: var(--tx)
+}
+.chip-num:focus { outline: 0; box-shadow: 0 0 0 3px var(--ring) }
 
 .visor { max-width: 660px; margin: 0 auto 12px; display: flex; gap: 10px; align-items: center; font-weight: 600; color: var(--mut) }
 .grid > div > .visor { margin-left: 0 }
