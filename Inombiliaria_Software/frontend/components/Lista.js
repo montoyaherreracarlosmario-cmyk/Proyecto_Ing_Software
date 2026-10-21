@@ -41,27 +41,10 @@ export default function Lista({ data, tab, setTab, abrir, filtros, setFiltros, n
       <Filtros f={filtros} setF={setFiltros} total={data.length} mostrados={base.length} />
       <div className="toolbar">
         <h2>{tab === 'Casa' ? 'Casas' : 'Apartamentos'}</h2>
-
-      </div>
-      {items.length === 0 && <div className="card vacio">Ningún inmueble coincide con los filtros. Amplía los rangos o cambia de pestaña.</div>}
-      <div className="lista">
-        <article
-          className="card item nuevo-item"
-          role="button"
-          tabIndex={0}
-          aria-label="Agregar inmueble"
-          title="Agregar inmueble"
-          onClick={nuevo}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nuevo(); } }}
-        >
-          <span className="nuevo-mas" aria-hidden="true">+</span>
-        </article>
-
         <button className="g" onClick={nuevo}>Agregar inmueble</button>
       </div>
       {items.length === 0 && <div className="card vacio">Ningún inmueble coincide con los filtros. Amplía los rangos o cambia de pestaña.</div>}
       <div className="lista">
-
         {items.map((i) => <Tarjeta key={i._id} i={i} abrir={() => abrir(i._id)} />)}
       </div>
     </div>

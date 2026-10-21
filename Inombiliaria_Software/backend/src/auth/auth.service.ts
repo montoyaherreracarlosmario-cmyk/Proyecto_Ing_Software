@@ -7,7 +7,8 @@ import { ErrorFirma } from '../firmas/errores';
 import { GOOGLE_CLIENT_ID, esAdmin, normalizar, DIAS_SESION } from './config';
 import { NOMBRE_SESION, NOMBRE_USUARIO } from './model';
 
-
+// Claves públicas de Google para verificar la firma del ID token (RS256).
+// Se cachean automáticamente; no requiere secretos ni variables de entorno.
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const EMISORES = ['https://accounts.google.com', 'accounts.google.com'];
 
@@ -65,7 +66,7 @@ export class AuthService {
     return { token, usuario: this.publico(usuario) };
   }
 
-
+  // ===== Resuelve el usuario a partir del header Authorization: Bearer <token> =====
   async usuarioDe(req: any) {
     const cabecera = String(req?.headers?.authorization || '');
     const token = cabecera.startsWith('Bearer ') ? cabecera.slice(7).trim() : '';
