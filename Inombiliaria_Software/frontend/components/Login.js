@@ -1,13 +1,15 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { GOOGLE_CLIENT_ID, cargarGoogle, loginGoogle, getSesion, limpiarSesion } from '../lib/auth';
+import { GOOGLE_CLIENT_ID, cargarGoogle, loginGoogle } from '../lib/auth';
 import { Logo, IcoCasa, IcoEdificio } from './Iconos';
 import TemaBtn from './TemaBtn';
 
-// Pantalla de inicio de sesión con Google. Solo los correos de administrador
-// (lista blanca del backend) pueden entrar; los demás ven el mensaje de rechazo.
+
 export default function Login({ onEntrar }) {
   const div = useRef(null);
+
+  const entrar = useRef(onEntrar);
+  entrar.current = onEntrar;
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(true);
 
@@ -25,9 +27,8 @@ export default function Login({ onEntrar }) {
           callback: async (res) => {
             try {
               const sesion = await loginGoogle(res.credential);
-              onEntrar(sesion);
+              entrar.current(sesion);
             } catch (e) {
-              limpiarSesion();
               setError(e.message || 'No se pudo iniciar sesión');
             }
           },
@@ -46,7 +47,7 @@ export default function Login({ onEntrar }) {
       }
     })();
     return () => { vivo = false; };
-  }, [onEntrar]);
+  }, []);
 
   return (
     <main className="login-main">
