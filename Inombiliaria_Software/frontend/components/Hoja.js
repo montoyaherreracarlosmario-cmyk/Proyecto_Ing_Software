@@ -39,7 +39,7 @@ export default function Hoja({ modo, S, firmas }) {
       <div className="sig">
         <FirmaEspacio nombre={S.arr || 'Arrendador'} rol="Arrendador" imagen={firmas?.arrendador} />
         <FirmaEspacio nombre={S.ate || 'Arrendatario'} rol="Arrendatario" imagen={firmas?.arrendatario} />
-        {cs.map((c, k) => <FirmaEspacio key={k} nombre={c} rol="Codeudor" />)}
+        {cs.map((c, k) => <FirmaEspacio key={k} nombre={c} rol="Codeudor" imagen={firmas?.codeudores?.[k]} />)}
       </div>
     </div>
   );

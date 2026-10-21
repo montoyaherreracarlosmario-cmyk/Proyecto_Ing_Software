@@ -37,15 +37,19 @@ export class FirmasService {
   async crearAcuerdo({ inmueble, tipo, datos, firmantes }: any) {
     if (!['arriendo', 'venta'].includes(tipo)) throw new ErrorFirma(400, 'Tipo de contrato inválido');
     if (!datos || typeof datos !== 'object') throw new ErrorFirma(400, 'Faltan los datos del contrato');
-    if (!Array.isArray(firmantes) || firmantes.length !== 2) {
-      throw new ErrorFirma(400, 'Se requieren exactamente 2 firmantes (las dos partes del contrato)');
+
+    // Las dos partes del contrato firman primero; en arriendo, cada codeudor firma después (solo si existe)
+    const maxFirmantes = tipo === 'arriendo' ? 12 : 2;
+    if (!Array.isArray(firmantes) || firmantes.length < 2 || firmantes.length > maxFirmantes) {
+      throw new ErrorFirma(400, 'Se requieren las dos partes del contrato (y los codeudores solo en arriendo)');
     }
-    const ordenEsperado = [1, 2];
+
     const conOrden = firmantes.map((f: any, i: number) => {
       if (!f.rol || typeof f.rol !== 'string') throw new ErrorFirma(400, 'Cada firmante necesita un rol');
+      if (i >= 2 && f.rol !== 'codeudor') throw new ErrorFirma(400, 'Después de las dos partes solo pueden firmar codeudores');
       return {
         rol: f.rol,
-        orden: ordenEsperado[i],
+        orden: i + 1,
         estado: 'pendiente',
         token: generarToken(),
         nombre: f.nombre || '',
@@ -74,6 +78,7 @@ export class FirmasService {
     const links = acuerdo.firmantes.map((f: any) => ({
       rol: f.rol,
       orden: f.orden,
+      nombre: f.nombre || '',
       token: f.token,
       url: `/firma/${f.token}`,
       estado: f.estado,
@@ -110,7 +115,7 @@ export class FirmasService {
       miOrden: propia.orden,
       miEstado: propia.estado,
       miNombre: propia.datos?.nombre || propia.nombre || '',
-      turno: turno ? { rol: turno.rol, orden: turno.orden } : null,
+      turno: turno ? { rol: turno.rol, orden: turno.orden, nombre: turno.nombre || '' } : null,
       firmantes: acuerdo.firmantes.map((f: any) => ({
         rol: f.rol, orden: f.orden, estado: f.estado,
         nombre: f.datos?.nombre || f.nombre || '',
@@ -252,7 +257,7 @@ export class FirmasService {
 
     if (acuerdo.estado === 'firmado') throw new ErrorFirma(409, 'El acuerdo ya está cerrado');
     if (acuerdo.estado === 'rechazado') throw new ErrorFirma(409, 'El acuerdo ya fue rechazado');
-    if (propia.orden !== 3) throw new ErrorFirma(403, 'Solo el administrativo puede rechazar el acuerdo');
+    if (propia.rol !== 'administrador') throw new ErrorFirma(403, 'Solo el administrativo puede rechazar el acuerdo');
     if (propia.estado !== 'pendiente') throw new ErrorFirma(409, 'Tu respuesta ya fue registrada');
 
     const txt = String(observaciones || '').trim();

@@ -28,13 +28,17 @@ export default function PaginaFirma() {
     setVerif(null);
     if (v.estado === 'firmado') descargar(v.id);
   };
-  const miTurno = vista && vista.estado === 'en_firma' && vista.miEstado === 'pendiente' && vista.turno?.rol === vista.miRol;
+
+  const miTurno = vista && vista.estado === 'en_firma' && vista.miEstado === 'pendiente' && vista.turno?.orden === vista.miOrden;
+
   const cerrado = vista && (vista.estado === 'firmado' || vista.estado === 'rechazado');
 
   // Imágenes de las firmas ya registradas, para pintarlas dentro del contrato
-  const firmasEnHoja = {};
+  const firmasEnHoja = { codeudores: [] };
   (vista?.firmantes || []).forEach((f) => {
-    if (f.imagen) firmasEnHoja[f.rol] = f.imagen;
+    if (!f.imagen) return;
+    if (f.rol === 'codeudor') firmasEnHoja.codeudores[f.orden - 3] = f.imagen; // codeudores: orden 3, 4, 5…
+    else firmasEnHoja[f.rol] = f.imagen;
   });
 
   const comprobar = async () => {
@@ -82,11 +86,11 @@ export default function PaginaFirma() {
       {vista.estado === 'en_firma' && !miTurno && (
         <div className="card noprint fm-espera">
           {vista.turno
-            ? <>Ahora le corresponde firmar a: <b>{vista.turno.rol}</b>. Recibirá su enlace privado.</>
+            ? <>Ahora le corresponde firmar a: <b>{vista.turno.rol}{vista.turno.nombre ? ` — ${vista.turno.nombre}` : ''}</b>. Recibirá su enlace privado.</>
             : <>Todas las firmas fueron registradas; el acuerdo está cerrando.</>}
           <ul className="fm-estados">
             {vista.firmantes.map((f) => (
-              <li key={f.rol}>
+              <li key={f.orden}>
                 <span className={`tag ${f.estado === 'firmada' ? 'Arrendada' : f.estado === 'rechazada' ? 'Vendida' : 'Sin'}`}>{f.estado}</span>
                 {f.rol} {f.nombre ? `— ${f.nombre}` : ''}
               </li>

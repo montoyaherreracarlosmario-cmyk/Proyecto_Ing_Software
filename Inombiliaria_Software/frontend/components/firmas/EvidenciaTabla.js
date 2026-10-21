@@ -19,7 +19,7 @@ export default function EvidenciaTabla({ firmantes, contratoHash }) {
           </thead>
           <tbody>
             {conEv.map((f) => (
-              <tr key={f.rol}>
+              <tr key={f.orden}>
                 <td>{f.evidencia.usuario?.nombre || f.nombre}</td>
                 <td>{f.rol}</td>
                 <td>{METODOS[f.evidencia.metodo] || f.evidencia.metodo}</td>

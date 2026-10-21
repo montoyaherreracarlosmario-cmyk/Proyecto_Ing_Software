@@ -7,6 +7,9 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
   const [modo, setModo] = useState(modo0);
   const [links, setLinks] = useState([]);
   const [acuerdoId, setAcuerdoId] = useState(null);
+
+  const [copiado, setCopiado] = useState(null);
+
   const [creando, setCreando] = useState(false);
   const [descargando, setDescargando] = useState(false);
   const [S, setS] = useState({ arr: 'Inmobiliaria', ate: '', vend: '', comp: '', ciu: 'Ibagué', dir: inm.dir || '', bar: inm.barrio || '', lin: inm.lind || '', val: inm.valor || '', dur: 12, dia: 5, pago: 'De contado', cods: [''] });
@@ -32,8 +35,12 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
     if (!(modo === 'arriendo' ? S.ate : S.comp)) return avisar('Escribe el nombre de la contraparte');
     setCreando(true);
     try {
+      // Solo hay enlace para el codeudor si se escribió su nombre; cada codeudor firma después de las dos partes
+      const cods = S.cods.filter(Boolean); // mismo criterio que Hoja.js y el PDF, para que coincidan los espacios de firma
       const firmantes = modo === 'arriendo'
-        ? [{ rol: 'arrendador', nombre: S.arr }, { rol: 'arrendatario', nombre: S.ate }]
+
+        ? [{ rol: 'arrendador', nombre: S.arr }, { rol: 'arrendatario', nombre: S.ate }, ...cods.map((c) => ({ rol: 'codeudor', nombre: c }))]
+
         : [{ rol: 'comprador', nombre: S.comp }, { rol: 'vendedor', nombre: S.vend }];
       const r = await crearAcuerdo({ inmueble: inm._id, tipo: modo, datos: S, firmantes });
       setAcuerdoId(r.id);
@@ -41,6 +48,13 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
       avisar('Enlaces de firma generados');
     } catch { avisar('No se pudo crear el acuerdo de firma'); }
     setCreando(false);
+  };
+
+  const copiar = (l) => {
+    navigator.clipboard?.writeText(l.full);
+    setCopiado(l.token);
+    setTimeout(() => setCopiado(null), 1800);
+    avisar('Link copiado');
   };
 
   // Descarga directa del PDF del borrador (generado en el servidor, sin firmas)
@@ -84,13 +98,14 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
           </div>
           {links.length > 0 && (
             <div className="card view noprint">
-              <b>Enlaces de firma (se firma en orden: primero uno, luego el otro)</b>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 10 }}>
-                {links.map((l) => (
-                  <div key={l.token} style={{ flex: '1 1 240px', minWidth: 0 }}>
-                    <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{l.rol}</span>
+              <b>Enlaces de firma (se firma en orden, uno después del otro)</b>
+              <div className="enlaces">
+                {links.map((l, k) => (
+                  <div key={l.token} className="enlace" style={{ '--n': k }}>
+                    <div className="enlace-rol"><span className="enlace-n">{k + 1}</span>{l.rol}</div>
+                    {l.nombre && <div className="mut">{l.nombre}</div>}
                     <div className="link">{l.full}</div>
-                    <button style={{ marginTop: 8 }} onClick={() => { navigator.clipboard?.writeText(l.full); avisar('Link copiado'); }}>Copiar</button>
+                    <button className={copiado === l.token ? 'g' : ''} onClick={() => copiar(l)}>{copiado === l.token ? '¡Copiado!' : 'Copiar'}</button>
                   </div>
                 ))}
               </div>
