@@ -5,6 +5,7 @@ import { NOMBRE_ACUERDO } from './model';
 import { hashContrato, hashCadena, generarToken, ipDe, tokenSeguro } from './hash';
 import { generarPdf, generarPdfBorrador, guardarEnGridFS, leerDeGridFS } from './pdf';
 import { ErrorFirma } from './errores';
+import { InmueblesService } from '../inmuebles/inmuebles.service';
 
 const METODOS = ['tipografica', 'canvas', 'imagen'];
 const MAX_FIRMA = Number(process.env.MAX_FIRMA_BYTES || 1000000);
@@ -29,21 +30,24 @@ export class FirmasService {
   constructor(
     @InjectModel(NOMBRE_ACUERDO) private readonly acuerdos: Model<any>,
     @InjectConnection() private readonly conn: Connection,
+    private readonly inmuebles: InmueblesService,
   ) {}
 
   // ===== Crear acuerdo: genera los 3 tokens y el hash del contrato =====
   async crearAcuerdo({ inmueble, tipo, datos, firmantes }: any) {
     if (!['arriendo', 'venta'].includes(tipo)) throw new ErrorFirma(400, 'Tipo de contrato inválido');
     if (!datos || typeof datos !== 'object') throw new ErrorFirma(400, 'Faltan los datos del contrato');
-    if (!Array.isArray(firmantes) || firmantes.length !== 3) {
-      throw new ErrorFirma(400, 'Se requieren exactamente 3 firmantes (comprador, vendedor y administrador)');
+    // Las dos partes del contrato firman primero; en arriendo, cada codeudor firma después (solo si existe)
+    const maxFirmantes = tipo === 'arriendo' ? 12 : 2;
+    if (!Array.isArray(firmantes) || firmantes.length < 2 || firmantes.length > maxFirmantes) {
+      throw new ErrorFirma(400, 'Se requieren las dos partes del contrato (y los codeudores solo en arriendo)');
     }
-    const ordenEsperado = [1, 2, 3];
     const conOrden = firmantes.map((f: any, i: number) => {
       if (!f.rol || typeof f.rol !== 'string') throw new ErrorFirma(400, 'Cada firmante necesita un rol');
+      if (i >= 2 && f.rol !== 'codeudor') throw new ErrorFirma(400, 'Después de las dos partes solo pueden firmar codeudores');
       return {
         rol: f.rol,
-        orden: ordenEsperado[i],
+        orden: i + 1,
         estado: 'pendiente',
         token: generarToken(),
         nombre: f.nombre || '',
@@ -72,6 +76,7 @@ export class FirmasService {
     const links = acuerdo.firmantes.map((f: any) => ({
       rol: f.rol,
       orden: f.orden,
+      nombre: f.nombre || '',
       token: f.token,
       url: `/firma/${f.token}`,
       estado: f.estado,
@@ -108,7 +113,7 @@ export class FirmasService {
       miOrden: propia.orden,
       miEstado: propia.estado,
       miNombre: propia.datos?.nombre || propia.nombre || '',
-      turno: turno ? { rol: turno.rol, orden: turno.orden } : null,
+      turno: turno ? { rol: turno.rol, orden: turno.orden, nombre: turno.nombre || '' } : null,
       firmantes: acuerdo.firmantes.map((f: any) => ({
         rol: f.rol, orden: f.orden, estado: f.estado,
         nombre: f.datos?.nombre || f.nombre || '',
@@ -205,12 +210,13 @@ export class FirmasService {
       hashCadena: cadena,
     };
 
-    // ¿Cerramos el acuerdo? (la última firma es el administrador)
+    // ¿Cerramos el acuerdo? (cuando ya no quedan firmas pendientes)
     const quedan = acuerdo.firmantes.filter((f: any) => f.estado === 'pendiente');
     if (quedan.length === 0) {
       acuerdo.estado = 'firmado';
       acuerdo.cerradoEn = new Date();
       await acuerdo.save();
+      await this.marcarInmueble(acuerdo);
       // Congela el PDF final en GridFS
       try {
         const buffer = await generarPdf(acuerdo);
@@ -226,6 +232,21 @@ export class FirmasService {
     return this.vistaToken(acuerdo, propia);
   }
 
+  // Firmas completas: el inmueble pasa a Arrendada (arriendo) o Vendida (compraventa)
+  private async marcarInmueble(acuerdo: any) {
+    if (!acuerdo.inmueble) return;
+    const d = acuerdo.datos || {};
+    try {
+      await this.inmuebles.crearContrato(String(acuerdo.inmueble), {
+        modo: acuerdo.tipo,
+        firmantes: acuerdo.firmantes.map((f: any) => f.datos?.nombre || f.nombre),
+        dur: d.dur, dia: d.dia, val: d.val, dir: d.dir, bar: d.bar, lin: d.lin,
+      });
+    } catch (e: any) {
+      console.error('No se pudo actualizar el estado del inmueble:', e.message);
+    }
+  }
+
   // ===== Rechazo: solo el administrador (orden 3) en su turno =====
   async rechazar(token: string, { observaciones, req }: any) {
     const acuerdo: any = await this.acuerdos.findOne({ 'firmantes.token': token });
@@ -234,7 +255,7 @@ export class FirmasService {
 
     if (acuerdo.estado === 'firmado') throw new ErrorFirma(409, 'El acuerdo ya está cerrado');
     if (acuerdo.estado === 'rechazado') throw new ErrorFirma(409, 'El acuerdo ya fue rechazado');
-    if (propia.orden !== 3) throw new ErrorFirma(403, 'Solo el administrativo puede rechazar el acuerdo');
+    if (propia.rol !== 'administrador') throw new ErrorFirma(403, 'Solo el administrativo puede rechazar el acuerdo');
     if (propia.estado !== 'pendiente') throw new ErrorFirma(409, 'Tu respuesta ya fue registrada');
 
     const txt = String(observaciones || '').trim();

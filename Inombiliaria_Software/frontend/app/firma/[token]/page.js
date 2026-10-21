@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import Hoja from '../../../components/Hoja';
 import FirmaFlujo from '../../../components/firmas/FirmaFlujo';
 import EvidenciaTabla from '../../../components/firmas/EvidenciaTabla';
-import { porToken, rechazar, verificar, urlPdf } from '../../../lib/apiFirmas';
+import { porToken, verificar, descargarPdfFinal } from '../../../lib/apiFirmas';
 import './firma.css';
 
 export default function PaginaFirma() {
@@ -12,31 +12,32 @@ export default function PaginaFirma() {
   const [vista, setVista] = useState(null);
   const [err, setErr] = useState('');
   const [toast, setToast] = useState('');
-  const [obs, setObs] = useState('');
   const [verif, setVerif] = useState(null);
 
   const avisar = (t) => { setToast(t); setTimeout(() => setToast(''), 2600); };
   const cargar = useCallback(() => porToken(token).then(setVista).catch((e) => setErr(e.message)), [token]);
   useEffect(() => { cargar(); }, [cargar]);
 
-  const firmado = (v) => { setVista(v); setVerif(null); };
-  const miTurno = vista && vista.estado === 'en_firma' && vista.miEstado === 'pendiente' && vista.turno?.rol === vista.miRol;
+  const descargar = async (id) => {
+    try { await descargarPdfFinal(id, token); } catch (e) { avisar(e.message); }
+  };
+
+  // Al registrar la firma: si fue la última, el acuerdo queda cerrado y se baja el PDF firmado
+  const firmado = (v) => {
+    setVista(v);
+    setVerif(null);
+    if (v.estado === 'firmado') descargar(v.id);
+  };
+  const miTurno = vista && vista.estado === 'en_firma' && vista.miEstado === 'pendiente' && vista.turno?.orden === vista.miOrden;
   const cerrado = vista && (vista.estado === 'firmado' || vista.estado === 'rechazado');
 
   // Imágenes de las firmas ya registradas, para pintarlas dentro del contrato
-  const firmasEnHoja = {};
+  const firmasEnHoja = { codeudores: [] };
   (vista?.firmantes || []).forEach((f) => {
-    if (f.imagen) firmasEnHoja[f.rol] = f.imagen;
+    if (!f.imagen) return;
+    if (f.rol === 'codeudor') firmasEnHoja.codeudores[f.orden - 3] = f.imagen; // codeudores: orden 3, 4, 5…
+    else firmasEnHoja[f.rol] = f.imagen;
   });
-  firmasEnHoja.administrador = firmasEnHoja.administrador || firmasEnHoja.administrativo;
-
-  const hacerRechazo = async () => {
-    try {
-      const v = await rechazar(token, obs);
-      setVista(v);
-      avisar('Acuerdo rechazado con observaciones');
-    } catch (e) { avisar(e.message); }
-  };
 
   const comprobar = async () => {
     try { setVerif(await verificar(vista.id)); } catch (e) { avisar(e.message); }
@@ -65,7 +66,7 @@ export default function PaginaFirma() {
         </div>
         <div className="row" style={{ margin: 0 }}>
           <button type="button" onClick={() => window.print()}>Imprimir / PDF</button>
-          {vista.pdfDisponible && <a className="btn-pdf" href={urlPdf(vista.id, token)}>Descargar PDF final</a>}
+          {vista.pdfDisponible && <button type="button" className="btn-pdf" onClick={() => descargar(vista.id)}>Descargar PDF firmado</button>}
           <button type="button" onClick={comprobar}>Verificar integridad</button>
         </div>
       </div>
@@ -83,11 +84,11 @@ export default function PaginaFirma() {
       {vista.estado === 'en_firma' && !miTurno && (
         <div className="card noprint fm-espera">
           {vista.turno
-            ? <>Ahora le corresponde firmar a: <b>{vista.turno.rol}</b>. Recibirá su enlace privado.</>
+            ? <>Ahora le corresponde firmar a: <b>{vista.turno.rol}{vista.turno.nombre ? ` — ${vista.turno.nombre}` : ''}</b>. Recibirá su enlace privado.</>
             : <>Todas las firmas fueron registradas; el acuerdo está cerrando.</>}
           <ul className="fm-estados">
             {vista.firmantes.map((f) => (
-              <li key={f.rol}>
+              <li key={f.orden}>
                 <span className={`tag ${f.estado === 'firmada' ? 'Arrendada' : f.estado === 'rechazada' ? 'Vendida' : 'Sin'}`}>{f.estado}</span>
                 {f.rol} {f.nombre ? `— ${f.nombre}` : ''}
               </li>
@@ -96,20 +97,8 @@ export default function PaginaFirma() {
         </div>
       )}
 
-      {miTurno && vista.miRol !== 'administrador' && (
+      {miTurno && (
         <FirmaFlujo vista={vista} token={token} avisar={avisar} firmado={firmado} />
-      )}
-
-      {miTurno && vista.miRol === 'administrador' && (
-        <>
-          <FirmaFlujo vista={vista} token={token} avisar={avisar} firmado={firmado} />
-          <div className="card noprint fm-rechazo">
-            <h3 style={{ marginTop: 0 }}>¿No apruebas el acuerdo?</h3>
-            <p className="mut">Puedes rechazarlo dejando observaciones; las firmas de comprador y vendedor quedan como evidencia.</p>
-            <textarea rows="3" value={obs} onChange={(e) => setObs(e.target.value)} placeholder="Motivo del rechazo" />
-            <div className="row"><button type="button" className="o" onClick={hacerRechazo} disabled={obs.trim().length < 5}>Rechazar acuerdo</button></div>
-          </div>
-        </>
       )}
 
       {vista.miEstado === 'firmada' && vista.estado === 'en_firma' && (
