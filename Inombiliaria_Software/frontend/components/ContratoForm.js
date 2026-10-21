@@ -19,11 +19,11 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
     setCreando(true);
     try {
       const firmantes = modo === 'arriendo'
-        ? [{ rol: 'arrendador', nombre: S.arr }, { rol: 'arrendatario', nombre: S.ate }, { rol: 'administrador', nombre: 'Administrativo' }]
-        : [{ rol: 'comprador', nombre: S.comp }, { rol: 'vendedor', nombre: S.vend }, { rol: 'administrador', nombre: 'Administrativo' }];
+        ? [{ rol: 'arrendador', nombre: S.arr }, { rol: 'arrendatario', nombre: S.ate }]
+        : [{ rol: 'comprador', nombre: S.comp }, { rol: 'vendedor', nombre: S.vend }];
       const r = await crearAcuerdo({ inmueble: inm._id, tipo: modo, datos: S, firmantes });
       setLinks(r.links.map((l) => ({ ...l, full: `${window.location.origin}${l.url}` })));
-      avisar('Enlaces de firma generados (comprador → vendedor → administrador)');
+      avisar('Enlaces de firma generados');
     } catch { avisar('No se pudo crear el acuerdo de firma'); }
     setCreando(false);
   };
@@ -69,7 +69,7 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
           </div>
           {links.length > 0 && (
             <div className="card view noprint">
-              <b>Enlaces de firma (secuencia: comprador → vendedor → administrador)</b>
+              <b>Enlaces de firma (se firma en orden: primero uno, luego el otro)</b>
               {links.map((l) => (
                 <div key={l.token} className="row" style={{ margin: '10px 0' }}>
                   <span style={{ minWidth: 120, textTransform: 'capitalize' }}>{l.rol}</span>

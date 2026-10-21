@@ -70,7 +70,9 @@ export class FirmasController {
   @Public()
   @Get('acuerdos/:id/pdf')
   async pdf(@Param('id') id: string, @Query('token') token: string, @Req() req: any, @Res() res: any) {
-    const esAdmin = !!(await this.auth.usuarioDe(req));
+    // Sesión de administrador: por cabecera Authorization (fetch) o como ?token= (enlace directo)
+    const esAdmin = !!(await this.auth.usuarioDe(req))
+      || (token ? !!(await this.auth.usuarioDe({ headers: { authorization: `Bearer ${token}` } })) : false);
     const esFirmante = token ? await this.svc.tieneToken(id, token) : false;
     if (!esAdmin && !esFirmante) {
       return res.status(401).json({ error: 'Debes iniciar sesión' });
