@@ -7,7 +7,8 @@ import { ErrorFirma } from '../firmas/errores';
 import { GOOGLE_CLIENT_ID, esAdmin, normalizar, DIAS_SESION } from './config';
 import { NOMBRE_SESION, NOMBRE_USUARIO } from './model';
 
-
+// Claves públicas de Google para verificar la firma del ID token (RS256).
+// Se cachean automáticamente; no requiere secretos ni variables de entorno.
 const JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const EMISORES = ['https://accounts.google.com', 'accounts.google.com'];
 
@@ -18,7 +19,7 @@ export class AuthService {
     @InjectModel(NOMBRE_SESION) private readonly sesiones: Model<any>,
   ) {}
 
-
+  // ===== Login: verifica el ID token de Google y valida la lista de administradores =====
   async loginConGoogle(credential: string) {
     if (typeof credential !== 'string' || credential.length < 20) {
       throw new ErrorFirma(400, 'Falta el token de Google');
@@ -29,16 +30,8 @@ export class AuthService {
       ({ payload } = await jwtVerify(credential, JWKS, {
         issuer: EMISORES,
         audience: GOOGLE_CLIENT_ID,
-        clockTolerance: 60, 
       }));
-    } catch (e: any) {
-      console.error('[auth] Falló la verificación del token de Google:', e?.code || e?.name, e?.message);
-      if (e?.code === 'ERR_JWKS_TIMEOUT' || e?.code === 'ERR_JOSE_GENERIC' || e?.name === 'TypeError') {
-        throw new ErrorFirma(503, 'No se pudo contactar a Google para verificar la cuenta. Intenta de nuevo.');
-      }
-      if (e?.code === 'ERR_JWT_EXPIRED') {
-        throw new ErrorFirma(401, 'El inicio de sesión de Google expiró. Intenta de nuevo.');
-      }
+    } catch {
       throw new ErrorFirma(401, 'No se pudo verificar la cuenta de Google');
     }
 
@@ -47,7 +40,7 @@ export class AuthService {
     if (payload.email_verified === false) {
       throw new ErrorFirma(403, 'El correo de Google no está verificado');
     }
-
+    // El control de acceso real: SOLO correos de la lista blanca de administradores.
     if (!esAdmin(email)) {
       throw new ErrorFirma(403, 'Este correo no está autorizado como administrador');
     }
@@ -73,7 +66,7 @@ export class AuthService {
     return { token, usuario: this.publico(usuario) };
   }
 
-
+  // ===== Resuelve el usuario a partir del header Authorization: Bearer <token> =====
   async usuarioDe(req: any) {
     const cabecera = String(req?.headers?.authorization || '');
     const token = cabecera.startsWith('Bearer ') ? cabecera.slice(7).trim() : '';
