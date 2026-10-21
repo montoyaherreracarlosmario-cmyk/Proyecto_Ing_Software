@@ -4,20 +4,12 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  const origenes = (process.env.FRONTEND_URL || '')
-    .split(',')
-    .map((o) => o.trim().replace(/\/+$/, ''))
-    .filter(Boolean)
-    .map((o) =>
-      o.includes('*')
-        ? new RegExp('^' + o.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[a-z0-9-]+') + '$', 'i')
-        : o,
-    );
-  app.enableCors({ origin: origenes.length ? origenes : true });
-
+  const origenes = process.env.FRONTEND_URL?.split(',').map((o) => o.trim());
+  app.enableCors({ origin: origenes?.length ? origenes : true });
+  // Las firmas viajan como base64 en JSON: límite generoso (antes 100 kb por defecto)
   app.use(express.json({ limit: '10mb' }));
-
+  // Las imágenes ahora se guardan en Mongo y las sirve ImagenesController (/archivos/:nombre),
+  // así sobreviven a los reinicios del contenedor.
   await app.listen(process.env.PORT || 4000, '0.0.0.0');
 }
 bootstrap();
