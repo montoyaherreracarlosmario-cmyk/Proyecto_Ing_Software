@@ -37,11 +37,13 @@ export class FirmasService {
   async crearAcuerdo({ inmueble, tipo, datos, firmantes }: any) {
     if (!['arriendo', 'venta'].includes(tipo)) throw new ErrorFirma(400, 'Tipo de contrato inválido');
     if (!datos || typeof datos !== 'object') throw new ErrorFirma(400, 'Faltan los datos del contrato');
+
     // Las dos partes del contrato firman primero; en arriendo, cada codeudor firma después (solo si existe)
     const maxFirmantes = tipo === 'arriendo' ? 12 : 2;
     if (!Array.isArray(firmantes) || firmantes.length < 2 || firmantes.length > maxFirmantes) {
       throw new ErrorFirma(400, 'Se requieren las dos partes del contrato (y los codeudores solo en arriendo)');
     }
+
     const conOrden = firmantes.map((f: any, i: number) => {
       if (!f.rol || typeof f.rol !== 'string') throw new ErrorFirma(400, 'Cada firmante necesita un rol');
       if (i >= 2 && f.rol !== 'codeudor') throw new ErrorFirma(400, 'Después de las dos partes solo pueden firmar codeudores');

@@ -7,7 +7,9 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
   const [modo, setModo] = useState(modo0);
   const [links, setLinks] = useState([]);
   const [acuerdoId, setAcuerdoId] = useState(null);
+
   const [copiado, setCopiado] = useState(null);
+
   const [creando, setCreando] = useState(false);
   const [descargando, setDescargando] = useState(false);
   const [S, setS] = useState({ arr: 'Inmobiliaria', ate: '', vend: '', comp: '', ciu: 'Ibagué', dir: inm.dir || '', bar: inm.barrio || '', lin: inm.lind || '', val: inm.valor || '', dur: 12, dia: 5, pago: 'De contado', cods: [''] });
@@ -36,7 +38,9 @@ export default function ContratoForm({ inm, modo0, volver, terminado, avisar }) 
       // Solo hay enlace para el codeudor si se escribió su nombre; cada codeudor firma después de las dos partes
       const cods = S.cods.filter(Boolean); // mismo criterio que Hoja.js y el PDF, para que coincidan los espacios de firma
       const firmantes = modo === 'arriendo'
+
         ? [{ rol: 'arrendador', nombre: S.arr }, { rol: 'arrendatario', nombre: S.ate }, ...cods.map((c) => ({ rol: 'codeudor', nombre: c }))]
+
         : [{ rol: 'comprador', nombre: S.comp }, { rol: 'vendedor', nombre: S.vend }];
       const r = await crearAcuerdo({ inmueble: inm._id, tipo: modo, datos: S, firmantes });
       setAcuerdoId(r.id);

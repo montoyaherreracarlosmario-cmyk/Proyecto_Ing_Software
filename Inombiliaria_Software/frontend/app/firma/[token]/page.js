@@ -28,7 +28,9 @@ export default function PaginaFirma() {
     setVerif(null);
     if (v.estado === 'firmado') descargar(v.id);
   };
+
   const miTurno = vista && vista.estado === 'en_firma' && vista.miEstado === 'pendiente' && vista.turno?.orden === vista.miOrden;
+
   const cerrado = vista && (vista.estado === 'firmado' || vista.estado === 'rechazado');
 
   // Imágenes de las firmas ya registradas, para pintarlas dentro del contrato
