@@ -3,7 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { NOMBRE_ACUERDO } from './model';
 import { hashContrato, hashCadena, generarToken, ipDe, tokenSeguro } from './hash';
-import { generarPdf, guardarEnGridFS, leerDeGridFS } from './pdf';
+import { generarPdf, generarPdfBorrador, guardarEnGridFS, leerDeGridFS } from './pdf';
 import { ErrorFirma } from './errores';
 
 const METODOS = ['tipografica', 'canvas', 'imagen'];
@@ -306,5 +306,12 @@ export class FirmasService {
       try { return await leerDeGridFS(acuerdo.pdfGridId, this.conn.db); } catch { /* si falla, regenera */ }
     }
     return generarPdf(acuerdo);
+  }
+
+  // ===== PDF de un borrador (sin firmas): se descarga desde el formulario =====
+  async pdfBorrador(tipo: string, datos: any) {
+    if (!['arriendo', 'venta'].includes(tipo)) throw new ErrorFirma(400, 'Tipo de contrato inválido');
+    if (!datos || typeof datos !== 'object') throw new ErrorFirma(400, 'Faltan los datos del contrato');
+    return generarPdfBorrador(tipo, datos);
   }
 }
