@@ -40,7 +40,6 @@ export default function Hoja({ modo, S, firmas }) {
         <FirmaEspacio nombre={S.arr || 'Arrendador'} rol="Arrendador" imagen={firmas?.arrendador} />
         <FirmaEspacio nombre={S.ate || 'Arrendatario'} rol="Arrendatario" imagen={firmas?.arrendatario} />
         {cs.map((c, k) => <FirmaEspacio key={k} nombre={c} rol="Codeudor" />)}
-        {firmas && <FirmaEspacio nombre="Administrativo" rol="Administrativo" imagen={firmas?.administrador} />}
       </div>
     </div>
   );
@@ -59,7 +58,6 @@ export default function Hoja({ modo, S, firmas }) {
       <div className="sig">
         <FirmaEspacio nombre={S.vend || 'Vendedor'} rol="Vendedor" imagen={firmas?.vendedor} />
         <FirmaEspacio nombre={S.comp || 'Comprador'} rol="Comprador" imagen={firmas?.comprador} />
-        {firmas && <FirmaEspacio nombre="Administrativo" rol="Administrativo" imagen={firmas?.administrador} />}
       </div>
     </div>
   );

@@ -55,6 +55,26 @@ export const urlPdf = (id, tokenFirmante) => {
   return `${API}/api/firmas/acuerdos/${id}/pdf${t ? `?token=${encodeURIComponent(t)}` : ''}`;
 };
 
+// Descarga el PDF final con fetch + blob: así se manda la sesión por cabecera,
+// el firmante se identifica con su ?token= y cualquier error llega como mensaje.
+export async function descargarPdfFinal(id, tokenFirmante) {
+  const q = tokenFirmante ? `?token=${encodeURIComponent(tokenFirmante)}` : '';
+  const r = await fetch(`${API}/api/firmas/acuerdos/${id}/pdf${q}`, { headers: conAuth(), cache: 'no-store' });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e.error || 'No se pudo descargar el PDF firmado');
+  }
+  const blob = await r.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `contrato-firmado-${id}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 // Administrativo: descarga directa del PDF del contrato en borrador (sin firmas).
 // Hace POST con la sesión y dispara la descarga del archivo recibido.
 export async function descargarPdfBorrador(tipo, datos) {

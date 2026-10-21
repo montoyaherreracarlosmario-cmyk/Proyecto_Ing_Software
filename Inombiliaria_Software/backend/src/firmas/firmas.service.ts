@@ -35,10 +35,10 @@ export class FirmasService {
   async crearAcuerdo({ inmueble, tipo, datos, firmantes }: any) {
     if (!['arriendo', 'venta'].includes(tipo)) throw new ErrorFirma(400, 'Tipo de contrato inválido');
     if (!datos || typeof datos !== 'object') throw new ErrorFirma(400, 'Faltan los datos del contrato');
-    if (!Array.isArray(firmantes) || firmantes.length !== 3) {
-      throw new ErrorFirma(400, 'Se requieren exactamente 3 firmantes (comprador, vendedor y administrador)');
+    if (!Array.isArray(firmantes) || firmantes.length !== 2) {
+      throw new ErrorFirma(400, 'Se requieren exactamente 2 firmantes (las dos partes del contrato)');
     }
-    const ordenEsperado = [1, 2, 3];
+    const ordenEsperado = [1, 2];
     const conOrden = firmantes.map((f: any, i: number) => {
       if (!f.rol || typeof f.rol !== 'string') throw new ErrorFirma(400, 'Cada firmante necesita un rol');
       return {
@@ -205,7 +205,7 @@ export class FirmasService {
       hashCadena: cadena,
     };
 
-    // ¿Cerramos el acuerdo? (la última firma es el administrador)
+    // ¿Cerramos el acuerdo? (cuando ya no quedan firmas pendientes)
     const quedan = acuerdo.firmantes.filter((f: any) => f.estado === 'pendiente');
     if (quedan.length === 0) {
       acuerdo.estado = 'firmado';

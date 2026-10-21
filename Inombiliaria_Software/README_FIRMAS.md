@@ -8,7 +8,7 @@ Documento de todo lo que se construyó en esta entrega. El `README.md` original 
 
 Se implementaron dos entregables nuevos, integrados **dentro del backend NestJS existente** (un solo servicio, puerto 4000):
 
-1. **Módulo de firmas electrónicas** con firma secuencial (comprador → vendedor → administrador), 3 métodos de firma, evidencia técnica por firma (fecha, hora, IP, hash SHA-256 encadenado), PDF final único con anexo de evidencia y verificación de integridad, conforme a la **Ley 527 de 1999**.
+1. **Módulo de firmas electrónicas** con firma secuencial de las dos partes (comprador → vendedor / arrendador → arrendatario), 3 métodos de firma, evidencia técnica por firma (fecha, hora, IP, hash SHA-256 encadenado), PDF final único con anexo de evidencia y verificación de integridad, conforme a la **Ley 527 de 1999**.
 2. **API genérica de subida de imágenes** (fotos de casas, hoteles, etc.), independiente del módulo de firmas.
 
 Todo vive en `backend/src/firmas/` y `backend/src/imagenes/` (módulos NestJS registrados en `AppModule`) más los archivos nuevos del frontend. La API Express independiente que existía en la carpeta `api/` (puerto 4100) fue **eliminada** tras portar sus rutas: el frontend consume todo desde `NEXT_PUBLIC_API_URL` (el mismo backend de siempre). Las rutas `/api/firmas/...`, `/api/imagenes/...`, `/archivos/:nombre` y `/api/salud` se conservan **idénticas** a la API original.
@@ -236,5 +236,5 @@ Además: `tsc --noEmit` sin errores y `next build` compila con la ruta `/firma/[
 - **Firma digital certificada**: migrar a PKI (GovCo / Cámara de Comercio) para valor probatorio reforzado.
 - **Notificaciones**: los enlaces se copian a mano; falta envío automático por correo (SMTP/SendGrid).
 - **Storage de imágenes**: `backend/uploads/imagenes` es local (en Render free solo vive en `/tmp`, efímero). Mejora: Cloudinary/S3/GridFS.
-- **Firmas de codeudores**: en arriendo, los codeudores no firman por separado (solo aparecen en el contrato); el flujo de 3 firmas es comprador/arrendador → vendedor/arrendatario → administrador.
+- **Firmas de codeudores**: en arriendo, los codeudores no firman por separado (solo aparecen en el contrato); el flujo es de 2 firmas: comprador/arrendador → vendedor/arrendatario (ya no firma el administrador).
 - **Reintento de acuerdo rechazado**: actualmente se crea un nuevo acuerdo; no hay “reabrir el mismo”.
