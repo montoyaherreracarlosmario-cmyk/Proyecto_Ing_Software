@@ -2,9 +2,9 @@ import { fmt } from '../lib/utils';
 
 import FirmaEspacio from './firmas/FirmaEspacio';
 
- Mario
+
 import FirmaEspacio from './firmas/FirmaEspacio';
-main
+
 
 
 const V = ({ x, d }) => (x && String(x).trim() ? <b>{x}</b> : <b className="bl">{d || '__________'}</b>);
